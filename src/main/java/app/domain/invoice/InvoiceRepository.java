@@ -1,0 +1,17 @@
+package app.domain.invoice;
+
+import java.util.UUID;
+
+/**
+ * Created by marc on 15/01/16.
+ */
+public class InvoiceRepository {
+
+    public void store(Invoice invoice) {
+
+    }
+
+    public Invoice findById(UUID expetedUuid) {
+        return null;
+    }
+}
