@@ -7,17 +7,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * Created by marc on 15/01/16.
  */
 public class Invoice extends AggregateRootBase {
 
+    final InvoiceVatCalculator invoiceVatCalculatorDelegate = new InvoiceVatCalculator(this);
+    final Configuration configuration;
     Boolean includingVatInvoice;
     private Debtor debtor;
     private List<InvoiceLine> invoiceLines = new ArrayList<>();
+
+    public Invoice(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
     public Boolean getIncludingVatInvoice() {
         return includingVatInvoice;
@@ -74,30 +78,12 @@ public class Invoice extends AggregateRootBase {
     }
 
     public BigDecimal getInvoiceTotalVat() {
-        return getVatPerVatTariff().values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        return invoiceVatCalculatorDelegate.getInvoiceTotalVat();
     }
 
-    public Map<VatTariff, BigDecimal> getVatPerVatTariff() {
-        return Arrays.asList(VatTariff.values())
-                .stream()
-                .filter(vatTariff -> isNumberOfInvoiceLinesForVatTariffGreaterThanZero(vatTariff))
-                .collect(Collectors.groupingBy(
-                        vatTariff -> vatTariff,
-                        Collectors.reducing(BigDecimal.ZERO, getTotalVatForVatTariff(), BigDecimal::add)
-                ));
-    }
+    public Map<VatTariff, VatAmountSummary> getVatPerVatTariff() {
 
-    private boolean isNumberOfInvoiceLinesForVatTariffGreaterThanZero(VatTariff vatTariff) {
-        return invoiceLines.stream()
-                .filter(invoiceLine -> invoiceLine.getVatTariff() == vatTariff)
-                .count() > 0;
-    }
-
-    private Function<VatTariff, BigDecimal> getTotalVatForVatTariff() {
-        return (Function<VatTariff, BigDecimal>) vatTariff -> invoiceLines.stream()
-                .filter(invoiceLine -> invoiceLine.getVatTariff() == vatTariff)
-                .map(invoiceLine1 -> invoiceLine1.getLineAmountVat(includingVatInvoice))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return invoiceVatCalculatorDelegate.getVatPerVatTariff();
     }
 
     // --- CQRS commands and event handlers ---

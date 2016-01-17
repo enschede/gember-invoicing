@@ -8,7 +8,10 @@ import java.util.UUID;
 public class InvoiceFactory {
 
     public Invoice newInstance() {
-        Invoice invoice = new Invoice();
+        Configuration configuration = new Configuration();
+        configuration.setConfiguredForCalculateVatOnIndividualLines(false);
+
+        Invoice invoice = new Invoice(configuration);
 
         invoice.setId(UUID.randomUUID());
 

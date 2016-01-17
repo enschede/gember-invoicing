@@ -23,21 +23,26 @@ public enum VatTariff {
         return percentage;
     }
 
-    public BigDecimal calculateVatAmount(Boolean includingVatInvoice, BigDecimal lineAmountExclVat, BigDecimal lineAmountInclVat) {
+    public VatAmountSummary createVatAmountInfo(Boolean includingVatInvoice, BigDecimal amountExclVat, BigDecimal amountInclVat) {
 
-        BigDecimal vatAmount = includingVatInvoice ?
-                lineAmountInclVat
-                        .divide(
-                                percentage.add(BigDecimal.valueOf(100))
-                                        .divide(percentage,
-                                                new MathContext(10, RoundingMode.HALF_EVEN)),
-                                2,
-                                RoundingMode.HALF_EVEN) :
-                lineAmountExclVat
-                        .multiply(
-                                percentage.divide(BigDecimal.valueOf(100)))
-                        .setScale(2, RoundingMode.HALF_EVEN);
+        if(includingVatInvoice) {
+            BigDecimal vatAmount = amountInclVat
+                    .divide(
+                            percentage.add(BigDecimal.valueOf(100))
+                                    .divide(percentage,
+                                            new MathContext(10, RoundingMode.HALF_EVEN)),
+                            2,
+                            RoundingMode.HALF_EVEN);
 
-        return vatAmount;
+            return new VatAmountSummary(this, vatAmount, amountInclVat.subtract(vatAmount), amountInclVat);
+        } else {
+            BigDecimal vatAmount = amountExclVat
+                    .multiply(
+                            percentage.divide(BigDecimal.valueOf(100)))
+                    .setScale(2, RoundingMode.HALF_EVEN);
+
+            return new VatAmountSummary(this, vatAmount, amountExclVat, amountExclVat.add(vatAmount));
+
+        }
     }
 }

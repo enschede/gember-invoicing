@@ -15,7 +15,10 @@ public abstract class InvoiceLine {
 
     public abstract String[] getDescription();
 
-    public BigDecimal getLineAmountVat(Boolean includingVatInvoice) {
-        return getVatTariff().calculateVatAmount(includingVatInvoice, getLineAmountExclVat(), getLineAmountInclVat());
+    public VatAmountSummary getVatAmount(Boolean includingVatInvoice) {
+        return getVatTariff().createVatAmountInfo(
+                includingVatInvoice,
+                getLineAmountExclVat(),
+                getLineAmountInclVat());
     }
 }

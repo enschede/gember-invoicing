@@ -1,4 +1,9 @@
-package app.domain.invoice;
+package app.domain.invoice.testbuilders;
+
+import app.domain.invoice.Configuration;
+import app.domain.invoice.Debtor;
+import app.domain.invoice.Invoice;
+import app.domain.invoice.InvoiceLine;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +14,7 @@ import java.util.UUID;
  */
 public class InvoiceTestBuilder {
 
+    private Configuration configuration = ConfigurationTestBuilder.newInstance().setDefault().build();
     private UUID id;
     private Boolean includingVatInvoice;
     private Debtor debtor;
@@ -18,6 +24,16 @@ public class InvoiceTestBuilder {
         id = UUID.fromString("00000000-0000-0000-0000-000000000000");
         includingVatInvoice = false;
         debtor = null;
+        return this;
+    }
+
+    public InvoiceTestBuilder setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+        return this;
+    }
+
+    public InvoiceTestBuilder setId(UUID id) {
+        this.id = id;
         return this;
     }
 
@@ -41,7 +57,7 @@ public class InvoiceTestBuilder {
     }
 
     public Invoice build() {
-        Invoice invoice = new Invoice();
+        Invoice invoice = new Invoice(configuration);
         invoice.setId(id);
         invoice.setIncludingVatInvoice(includingVatInvoice);
         invoice.setDebtor(debtor);

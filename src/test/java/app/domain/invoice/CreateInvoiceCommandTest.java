@@ -1,14 +1,13 @@
 package app.domain.invoice;
 
 import app.domain.debtor.EasyDebtorImpl;
+import app.domain.invoice.testbuilders.InvoiceTestBuilder;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.math.BigDecimal;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -50,67 +49,6 @@ public class CreateInvoiceCommandTest {
         addInvoiceLinesCommand.execute();
 
         assertThat(invoiceArgumentCaptor.getValue().getInvoiceLines().size(), Matchers.is(1));
-    }
-
-    @Test
-    public void shouldCalculateInvoiceAmountInclVat() {
-        Invoice expectedInvoice =
-                InvoiceTestBuilder.newInstance()
-                        .createDefault()
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineLow())
-                        .build();
-
-        BigDecimal invoiceTotalInclVat = expectedInvoice.getInvoiceTotalInclVat();
-
-        assertThat(invoiceTotalInclVat, Matchers.is(new BigDecimal("3.46")));
-    }
-
-    @Test
-    public void shouldCalculateInvoiceAmountExclVat() {
-        Invoice expectedInvoice =
-                InvoiceTestBuilder.newInstance()
-                        .createDefault()
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineLow())
-                        .build();
-
-        BigDecimal invoiceTotalInclVat = expectedInvoice.getInvoiceTotalExclVat();
-
-        assertThat(invoiceTotalInclVat, Matchers.is(new BigDecimal("3.00")));
-    }
-
-    @Test
-    public void shouldCalculateInvoiceAmountVatOfExclVatInvoice() {
-        Invoice expectedInvoice =
-                InvoiceTestBuilder.newInstance()
-                        .createDefault()
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineLow())
-                        .build();
-
-        BigDecimal invoiceTotalVat = expectedInvoice.getInvoiceTotalVat();
-
-        assertThat(invoiceTotalVat, Matchers.is(new BigDecimal("0.46")));
-    }
-
-    @Test
-    public void shouldCalculateInvoiceAmountVatOfInclVatInvoice() {
-        Invoice expectedInvoice =
-                InvoiceTestBuilder.newInstance()
-                        .createDefault()
-                        .setIncludingVatInvoice(true)
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineHigh())
-                        .addInvoiceLine(new InvoiceLineLow())
-                        .build();
-
-        BigDecimal invoiceTotalVat = expectedInvoice.getInvoiceTotalVat();
-
-        assertThat(invoiceTotalVat, Matchers.is(new BigDecimal("0.46")));
     }
 
 }
