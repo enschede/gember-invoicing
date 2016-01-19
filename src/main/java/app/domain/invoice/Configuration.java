@@ -1,17 +1,20 @@
 package app.domain.invoice;
 
-/**
- * Created by marc on 17/01/16.
- */
 public class Configuration {
 
-    private boolean configuredForCalculateVatOnIndividualLines;
+    boolean configuredForCalculateVatOnIndividualLines;
+    VatRepository vatRepository = new VatRepository();
 
     public boolean isConfiguredForCalculateVatOnIndividualLines() {
         return configuredForCalculateVatOnIndividualLines;
     }
 
+    public VatRepository getVatRepository() {
+        return vatRepository;
+    }
+
     public void setConfiguredForCalculateVatOnIndividualLines(boolean configuredForCalculateVatOnIndividualLines) {
         this.configuredForCalculateVatOnIndividualLines = configuredForCalculateVatOnIndividualLines;
+
     }
 }

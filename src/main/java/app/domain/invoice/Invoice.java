@@ -8,12 +8,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by marc on 15/01/16.
- */
 public class Invoice extends AggregateRootBase {
 
-    final InvoiceVatCalculator invoiceVatCalculatorDelegate = new InvoiceVatCalculator(this);
+    final InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegateDelegate = new InvoiceVatCalculatorDelegate(this);
     final Configuration configuration;
     Boolean includingVatInvoice;
     private Debtor debtor;
@@ -78,12 +75,12 @@ public class Invoice extends AggregateRootBase {
     }
 
     public BigDecimal getInvoiceTotalVat() {
-        return invoiceVatCalculatorDelegate.getInvoiceTotalVat();
+        return invoiceVatCalculatorDelegateDelegate.getInvoiceTotalVat();
     }
 
-    public Map<VatTariff, VatAmountSummary> getVatPerVatTariff() {
+    public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
 
-        return invoiceVatCalculatorDelegate.getVatPerVatTariff();
+        return invoiceVatCalculatorDelegateDelegate.getVatPerVatPercentage();
     }
 
     // --- CQRS commands and event handlers ---

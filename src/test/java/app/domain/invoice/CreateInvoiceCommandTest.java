@@ -1,6 +1,7 @@
 package app.domain.invoice;
 
 import app.domain.debtor.EasyDebtorImpl;
+import app.domain.invoice.testbuilders.InvoiceLineTestBuilder;
 import app.domain.invoice.testbuilders.InvoiceTestBuilder;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -9,7 +10,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertThat;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -41,7 +45,14 @@ public class CreateInvoiceCommandTest {
                 new AddInvoiceLinesCommand(
                         invoiceRepository,
                         expectedInvoice.getId(),
-                        new InvoiceLine[]{new InvoiceLineHigh()});
+                        new InvoiceLine[]{
+                                InvoiceLineTestBuilder.newInstance()
+                                        .setVatTariff(VatTariff.HIGH)
+                                        .setVatReferenceDate(LocalDate.of(1992, 10, 1))
+                                        .setLineAmountExclVat(new BigDecimal("1.00"))
+                                        .setLineAmountInclVat(new BigDecimal("1.06"))
+                                        .build()
+                        });
 
         ArgumentCaptor<Invoice> invoiceArgumentCaptor = ArgumentCaptor.forClass(Invoice.class);
         doNothing().when(invoiceRepository).store(invoiceArgumentCaptor.capture());

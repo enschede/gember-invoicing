@@ -1,8 +1,5 @@
 package app.domain.invoice;
 
-/**
- * Created by marc on 15/01/16.
- */
 public class CreateInvoiceCommand implements Command {
 
     private InvoiceRepository invoiceRepository;
@@ -23,7 +20,6 @@ public class CreateInvoiceCommand implements Command {
     @Override
     public void execute() {
         Invoice invoice = new InvoiceFactory().newInstance();
-        invoice.getInvoiceLines().add(new InvoiceLineHigh());
         invoice.createInvoice(this);
 
         invoiceRepository.store(invoice);

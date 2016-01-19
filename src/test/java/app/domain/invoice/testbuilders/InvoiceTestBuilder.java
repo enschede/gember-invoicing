@@ -9,9 +9,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by marc on 16/01/16.
- */
 public class InvoiceTestBuilder {
 
     private Configuration configuration = ConfigurationTestBuilder.newInstance().setDefault().build();
@@ -62,6 +59,8 @@ public class InvoiceTestBuilder {
         invoice.setIncludingVatInvoice(includingVatInvoice);
         invoice.setDebtor(debtor);
         invoice.setInvoiceLines(invoiceLineList);
+
+        invoiceLineList.stream().forEach(invoiceLine -> invoiceLine.setInvoice(invoice));
 
         return invoice;
     }
