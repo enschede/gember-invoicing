@@ -101,11 +101,11 @@ public class Invoice extends AggregateRootBase {
     }
 
     public BigDecimal getInvoiceTotalVat() {
-        return invoiceVatCalculatorDelegateDelegate.getInvoiceTotalVat();
+        return invoiceVatCalculatorDelegateDelegate.getTotalAmountVat(countryOfDestination);
     }
 
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-        return invoiceVatCalculatorDelegateDelegate.getAmountSummariesGroupedByVatPercentage();
+        return invoiceVatCalculatorDelegateDelegate.getAmountSummariesGroupedByVatPercentage(countryOfDestination);
     }
 
     // --- CQRS commands and event handlers ---

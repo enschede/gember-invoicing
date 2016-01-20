@@ -11,14 +11,13 @@ public class InvoiceVatCalculatorDelegate {
         this.invoice = invoice;
     }
 
-    public BigDecimal getInvoiceTotalVat() {
-        return getAmountSummariesGroupedByVatPercentage().values().stream()
+    public BigDecimal getTotalAmountVat(IsoCountryCode countryOfDestination) {
+        return getAmountSummariesGroupedByVatPercentage(countryOfDestination).values().stream()
                 .map(VatAmountSummary::getAmountVat)
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
-    public Map<VatPercentage, VatAmountSummary> getAmountSummariesGroupedByVatPercentage() {
-
+    public Map<VatPercentage, VatAmountSummary> getAmountSummariesGroupedByVatPercentage(IsoCountryCode countryOfDestination) {
         if (invoice.intraCommunityTransactionDelegate.isIntraCommunityTransaction()) {
             return new HashMap<>();
         }
@@ -27,17 +26,9 @@ public class InvoiceVatCalculatorDelegate {
                 invoice.invoiceLines.stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> invoice.configuration.vatRepository.findByTariffAndDate(
+                                        invoice.intraCommunityTransactionDelegate.getVatCountry(),
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
-
-        Set<IsoCountryCode> listOfUniqueIsoCountryCodes =
-                mapOfInvoiceLinesPerVatPercentage.keySet().stream()
-                        .map(vatPercentage -> vatPercentage.isoCountryCode)
-                        .collect(Collectors.toSet());
-
-        // Moet deze controle wel? Destination country is een attribuut van de invoice
-        if (listOfUniqueIsoCountryCodes.size() > 1)
-            throw new CannotHaveMoreThanOneDestinationCountryOnOneInvoiceException();
 
         return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
                         .collect(Collectors.toMap(
@@ -70,7 +61,7 @@ public class InvoiceVatCalculatorDelegate {
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.consumerInvoice))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.countryOfDestination, invoice.consumerInvoice))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }

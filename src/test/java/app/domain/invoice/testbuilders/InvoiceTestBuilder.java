@@ -11,7 +11,7 @@ public class InvoiceTestBuilder {
 
     private Configuration configuration = ConfigurationTestBuilder.newInstance().setDefault().build();
     private UUID id;
-    private Boolean includingVatInvoice;
+    private Boolean consumerInvoice;
     private Debtor debtor;
     private IsoCountryCode countryOfOrigin;
     private IsoCountryCode countryOfDestination;
@@ -19,7 +19,7 @@ public class InvoiceTestBuilder {
 
     public InvoiceTestBuilder createDefault() {
         this.setId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
-                .setIncludingVatInvoice(false)
+                .setConsumerInvoice(false)
                 .setDebtor(new EasyDebtorImpl())
                 .setCountryOfOrigin("NL")
                 .setCountryOfDestination("NL");
@@ -36,8 +36,8 @@ public class InvoiceTestBuilder {
         return this;
     }
 
-    public InvoiceTestBuilder setIncludingVatInvoice(Boolean includingVatInvoice) {
-        this.includingVatInvoice = includingVatInvoice;
+    public InvoiceTestBuilder setConsumerInvoice(Boolean consumerInvoice) {
+        this.consumerInvoice = consumerInvoice;
         return this;
     }
 
@@ -68,7 +68,7 @@ public class InvoiceTestBuilder {
     public Invoice build() {
         Invoice invoice = new Invoice(configuration);
         invoice.setId(id);
-        invoice.setConsumerInvoice(includingVatInvoice);
+        invoice.setConsumerInvoice(consumerInvoice);
         invoice.setDebtor(debtor);
         invoice.setInvoiceLines(invoiceLineList);
         invoice.setCountryOfOrigin(countryOfOrigin);

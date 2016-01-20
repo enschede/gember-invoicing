@@ -25,14 +25,15 @@ public abstract class InvoiceLine {
 
     public abstract String[] getDescription();
 
-    public VatAmountSummary getVatAmount(Boolean includingVatInvoice) {
+    public VatAmountSummary getVatAmount(IsoCountryCode destinationCountry, Boolean consumerInvoice) {
         return invoice.configuration
                 .getVatRepository()
                 .findByTariffAndDate(
+                        invoice.intraCommunityTransactionDelegate.getVatCountry(),
                         getVatTariff(),
                         getVatReferenceDate())
                 .createVatAmountInfo(
-                        includingVatInvoice,
+                        consumerInvoice,
                         getLineAmountExclVat(),
                         getLineAmountInclVat());
     }

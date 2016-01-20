@@ -17,4 +17,9 @@ public class IntraCommunityTransactionDelegate {
                 && !invoice.countryOfDestination.equals(invoice.countryOfOrigin)
                 && !StringUtils.isEmpty(invoice.debtor.getEuTaxId());
     }
+
+    IsoCountryCode getVatCountry() {
+        return invoice.getCountryOfDestination().isEuCountry() ?
+                invoice.getCountryOfDestination() : invoice.countryOfOrigin;
+    }
 }
