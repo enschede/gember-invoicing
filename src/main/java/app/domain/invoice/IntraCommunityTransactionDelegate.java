@@ -10,7 +10,7 @@ public class IntraCommunityTransactionDelegate {
     }
 
     boolean isIntraCommunityTransaction() {
-        return !invoice.includingVatInvoice
+        return !invoice.consumerInvoice
                 && invoice.countryOfOrigin!=null
                 && invoice.countryOfDestination!=null
                 && invoice.countryOfDestination.isEuCountry()

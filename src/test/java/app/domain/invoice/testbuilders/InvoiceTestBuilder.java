@@ -68,7 +68,7 @@ public class InvoiceTestBuilder {
     public Invoice build() {
         Invoice invoice = new Invoice(configuration);
         invoice.setId(id);
-        invoice.setIncludingVatInvoice(includingVatInvoice);
+        invoice.setConsumerInvoice(includingVatInvoice);
         invoice.setDebtor(debtor);
         invoice.setInvoiceLines(invoiceLineList);
         invoice.setCountryOfOrigin(countryOfOrigin);

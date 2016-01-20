@@ -24,8 +24,8 @@ public class VatPercentage {
     /**
      * Calculates VAT amount.
      *
-     * If includingVatInvoice==true, amountVat and amountExclVat are calculated from amountInclVat.
-     * If includingVatInvoice==false, amountVat and amountInclVat are calculated from amountExclVat.
+     * If consumerInvoice==true, amountVat and amountExclVat are calculated from amountInclVat.
+     * If consumerInvoice==false, amountVat and amountInclVat are calculated from amountExclVat.
      */
     public VatAmountSummary createVatAmountInfo(Boolean includingVatInvoice, BigDecimal amountExclVat, BigDecimal amountInclVat) {
 

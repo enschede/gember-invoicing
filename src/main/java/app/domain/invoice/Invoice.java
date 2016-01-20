@@ -16,7 +16,7 @@ public class Invoice extends AggregateRootBase {
     protected final IntraCommunityTransactionDelegate intraCommunityTransactionDelegate =
             new IntraCommunityTransactionDelegate(this);
     protected final Configuration configuration;
-    protected Boolean includingVatInvoice;
+    protected Boolean consumerInvoice;
     protected Debtor debtor;
     protected IsoCountryCode countryOfOrigin;
     protected IsoCountryCode countryOfDestination;
@@ -26,12 +26,12 @@ public class Invoice extends AggregateRootBase {
         this.configuration = configuration;
     }
 
-    public Boolean getIncludingVatInvoice() {
-        return includingVatInvoice;
+    public Boolean getConsumerInvoice() {
+        return consumerInvoice;
     }
 
-    public void setIncludingVatInvoice(Boolean includingVatInvoice) {
-        this.includingVatInvoice = includingVatInvoice;
+    public void setConsumerInvoice(Boolean consumerInvoice) {
+        this.consumerInvoice = consumerInvoice;
     }
 
     public Debtor getDebtor() {
@@ -85,7 +85,7 @@ public class Invoice extends AggregateRootBase {
     }
 
     private boolean isEffectiveConsumerInvoice() {
-        return includingVatInvoice && !intraCommunityTransactionDelegate.isIntraCommunityTransaction();
+        return consumerInvoice && !intraCommunityTransactionDelegate.isIntraCommunityTransaction();
     }
 
     private BigDecimal sumLineTotalsInclVat() {

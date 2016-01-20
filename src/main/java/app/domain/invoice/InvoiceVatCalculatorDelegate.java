@@ -51,26 +51,26 @@ public class InvoiceVatCalculatorDelegate {
 
         if (calculateVatOnSummaryBase()) {
             // This value is not calculated for a including VAT invoice, as is never used then
-            BigDecimal totalSumExclVat = !invoice.includingVatInvoice ?
+            BigDecimal totalSumExclVat = !invoice.consumerInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountExclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             // This value is not calculated for a excluding VAT invoice, as is never used then
-            BigDecimal totalSumInclVat = invoice.includingVatInvoice ?
+            BigDecimal totalSumInclVat = invoice.consumerInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountInclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             return vatPercentage.createVatAmountInfo(
-                    invoice.includingVatInvoice,
+                    invoice.consumerInvoice,
                     totalSumExclVat,
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.includingVatInvoice))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.consumerInvoice))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }
