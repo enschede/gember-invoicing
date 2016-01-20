@@ -1,9 +1,7 @@
 package app.domain.invoice.testbuilders;
 
-import app.domain.invoice.Configuration;
-import app.domain.invoice.Debtor;
-import app.domain.invoice.Invoice;
-import app.domain.invoice.InvoiceLine;
+import app.domain.debtor.EasyDebtorImpl;
+import app.domain.invoice.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,12 +13,16 @@ public class InvoiceTestBuilder {
     private UUID id;
     private Boolean includingVatInvoice;
     private Debtor debtor;
+    private IsoCountryCode countryOfOrigin;
+    private IsoCountryCode countryOfDestination;
     private List<InvoiceLine> invoiceLineList = new LinkedList<>();
 
     public InvoiceTestBuilder createDefault() {
-        id = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        includingVatInvoice = false;
-        debtor = null;
+        this.setId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
+                .setIncludingVatInvoice(false)
+                .setDebtor(new EasyDebtorImpl())
+                .setCountryOfOrigin("NL")
+                .setCountryOfDestination("NL");
         return this;
     }
 
@@ -44,6 +46,16 @@ public class InvoiceTestBuilder {
         return this;
     }
 
+    public InvoiceTestBuilder setCountryOfOrigin(String countryOfOrigin) {
+        this.countryOfOrigin = new IsoCountryCode(countryOfOrigin);
+        return this;
+    }
+
+    public InvoiceTestBuilder setCountryOfDestination(String countryOfDestination) {
+        this.countryOfDestination = new IsoCountryCode(countryOfDestination);
+        return this;
+    }
+
     public InvoiceTestBuilder addInvoiceLine(InvoiceLine invoiceLine) {
         this.invoiceLineList.add(invoiceLine);
         return this;
@@ -59,6 +71,8 @@ public class InvoiceTestBuilder {
         invoice.setIncludingVatInvoice(includingVatInvoice);
         invoice.setDebtor(debtor);
         invoice.setInvoiceLines(invoiceLineList);
+        invoice.setCountryOfOrigin(countryOfOrigin);
+        invoice.setCountryOfDestination(countryOfDestination);
 
         invoiceLineList.stream().forEach(invoiceLine -> invoiceLine.setInvoice(invoice));
 

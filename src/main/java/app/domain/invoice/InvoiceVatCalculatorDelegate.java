@@ -1,9 +1,7 @@
 package app.domain.invoice;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InvoiceVatCalculatorDelegate {
@@ -14,54 +12,65 @@ public class InvoiceVatCalculatorDelegate {
     }
 
     public BigDecimal getInvoiceTotalVat() {
-        return getVatPerVatPercentage().values().stream()
-                .map(vatAmount -> vatAmount.getAmountVat())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return getAmountSummariesGroupedByVatPercentage().values().stream()
+                .map(VatAmountSummary::getAmountVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
-    public Map<VatPercentage, VatAmountSummary> getVatPerVatPercentage() {
+    public Map<VatPercentage, VatAmountSummary> getAmountSummariesGroupedByVatPercentage() {
+
+        if (invoice.intraCommunityTransactionDelegate.isIntraCommunityTransaction()) {
+            return new HashMap<>();
+        }
 
         Map<Optional<VatPercentage>, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
-                invoice.getInvoiceLines().stream()
+                invoice.invoiceLines.stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> invoice.configuration.vatRepository.findByTariffAndDate(
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
 
-        Map<VatPercentage, VatAmountSummary> mapOfVatAmountSummariesPerVatPercentage = mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
-                .collect(Collectors.toMap(
-                        optionalListEntry -> optionalListEntry.getKey().get(),
-                        optionalListEntry1 -> calculateVatAmountForVatTariff(
-                                optionalListEntry1.getKey().get(),
-                                optionalListEntry1.getValue())));
+        Set<IsoCountryCode> listOfUniqueIsoCountryCodes =
+                mapOfInvoiceLinesPerVatPercentage.keySet().stream()
+                        .map(vatPercentage -> vatPercentage.get().isoCountryCode)
+                        .collect(Collectors.toSet());
 
-        return mapOfVatAmountSummariesPerVatPercentage;
+        // Moet deze controle wel? Destination country is een attribuut van de invoice
+        if (listOfUniqueIsoCountryCodes.size() > 1)
+            throw new CannotHaveMoreThanOneDestinationCountryOnOneInvoiceException();
+
+        return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
+                        .collect(Collectors.toMap(
+                                optionalListEntry -> optionalListEntry.getKey().get(),
+                                optionalListEntry -> calculateVatAmountForVatTariff(
+                                        optionalListEntry.getKey().get(),
+                                        optionalListEntry.getValue())));
     }
 
     private VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {
 
         if (calculateVatOnSummaryBase()) {
             // This value is not calculated for a including VAT invoice, as is never used then
-            BigDecimal totalSumExclVat = !invoice.getIncludingVatInvoice() ?
+            BigDecimal totalSumExclVat = !invoice.includingVatInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
-                            .map(invoiceLine -> invoiceLine.getLineAmountExclVat())
+                            .map(InvoiceLine::getLineAmountExclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             // This value is not calculated for a excluding VAT invoice, as is never used then
-            BigDecimal totalSumInclVat = invoice.getIncludingVatInvoice() ?
+            BigDecimal totalSumInclVat = invoice.includingVatInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
-                            .map(invoiceLine -> invoiceLine.getLineAmountInclVat())
+                            .map(InvoiceLine::getLineAmountInclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             return vatPercentage.createVatAmountInfo(
-                    invoice.getIncludingVatInvoice(),
+                    invoice.includingVatInvoice,
                     totalSumExclVat,
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getIncludingVatInvoice()))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.includingVatInvoice))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }

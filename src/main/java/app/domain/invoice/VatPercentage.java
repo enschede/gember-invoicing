@@ -7,12 +7,14 @@ import java.time.LocalDate;
 
 public class VatPercentage {
 
+    IsoCountryCode isoCountryCode;
     VatTariff vatTariff;
     LocalDate startDate;
     LocalDate endDate;
     BigDecimal percentage;
 
-    public VatPercentage(VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
+    public VatPercentage(IsoCountryCode isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
+        this.isoCountryCode = isoCountryCode;
         this.vatTariff = vatTariff;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -74,13 +76,13 @@ public class VatPercentage {
     @Override
     public String toString() {
         return "VatPercentage{" +
-                "vatTariff=" + vatTariff +
+                "isoCountryCode=" + isoCountryCode +
+                ", vatTariff=" + vatTariff +
                 ", startDate=" + startDate +
                 ", endDate=" + endDate +
                 ", percentage=" + percentage +
                 '}';
     }
-
 }
 
 

@@ -10,11 +10,17 @@ import java.util.Map;
 
 public class Invoice extends AggregateRootBase {
 
-    final InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegateDelegate = new InvoiceVatCalculatorDelegate(this);
-    final Configuration configuration;
-    Boolean includingVatInvoice;
-    private Debtor debtor;
-    private List<InvoiceLine> invoiceLines = new ArrayList<>();
+    // These attributes are protected as delegates inspect them on attribute base, not on get-method base
+    protected final InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegateDelegate =
+            new InvoiceVatCalculatorDelegate(this);
+    protected final IntraCommunityTransactionDelegate intraCommunityTransactionDelegate =
+            new IntraCommunityTransactionDelegate(this);
+    protected final Configuration configuration;
+    protected Boolean includingVatInvoice;
+    protected Debtor debtor;
+    protected IsoCountryCode countryOfOrigin;
+    protected IsoCountryCode countryOfDestination;
+    protected List<InvoiceLine> invoiceLines = new ArrayList<>();
 
     public Invoice(Configuration configuration) {
         this.configuration = configuration;
@@ -36,6 +42,22 @@ public class Invoice extends AggregateRootBase {
         this.debtor = debtor;
     }
 
+    public IsoCountryCode getCountryOfOrigin() {
+        return countryOfOrigin;
+    }
+
+    public void setCountryOfOrigin(IsoCountryCode countryOfOrigin) {
+        this.countryOfOrigin = countryOfOrigin;
+    }
+
+    public IsoCountryCode getCountryOfDestination() {
+        return countryOfDestination;
+    }
+
+    public void setCountryOfDestination(IsoCountryCode countryOfDestination) {
+        this.countryOfDestination = countryOfDestination;
+    }
+
     public List<InvoiceLine> getInvoiceLines() {
         return invoiceLines;
     }
@@ -47,7 +69,7 @@ public class Invoice extends AggregateRootBase {
     // --- Virtual data ---
 
     public BigDecimal getInvoiceTotalInclVat() {
-        if (includingVatInvoice.booleanValue()) {
+        if (isEffectiveConsumerInvoice()) {
             return sumLineTotalsInclVat();
         } else {
             return sumLineTotalsExclVat().add(getInvoiceTotalVat());
@@ -55,23 +77,27 @@ public class Invoice extends AggregateRootBase {
     }
 
     public BigDecimal getInvoiceTotalExclVat() {
-        if (!includingVatInvoice.booleanValue()) {
+        if (!isEffectiveConsumerInvoice()) {
             return sumLineTotalsExclVat();
         } else {
             return sumLineTotalsInclVat().subtract(getInvoiceTotalVat());
         }
     }
 
+    private boolean isEffectiveConsumerInvoice() {
+        return includingVatInvoice && !intraCommunityTransactionDelegate.isIntraCommunityTransaction();
+    }
+
     private BigDecimal sumLineTotalsInclVat() {
         return invoiceLines.stream()
-                .map(invoiceLine -> invoiceLine.getLineAmountInclVat())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(InvoiceLine::getLineAmountInclVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
     private BigDecimal sumLineTotalsExclVat() {
         return invoiceLines.stream()
-                .map(invoiceLine -> invoiceLine.getLineAmountExclVat())
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(InvoiceLine::getLineAmountExclVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
     public BigDecimal getInvoiceTotalVat() {
@@ -79,8 +105,7 @@ public class Invoice extends AggregateRootBase {
     }
 
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-
-        return invoiceVatCalculatorDelegateDelegate.getVatPerVatPercentage();
+        return invoiceVatCalculatorDelegateDelegate.getAmountSummariesGroupedByVatPercentage();
     }
 
     // --- CQRS commands and event handlers ---

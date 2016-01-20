@@ -2,9 +2,6 @@ package app.domain.debtor;
 
 import app.domain.invoice.Debtor;
 
-/**
- * Created by marc on 15/01/16.
- */
 public class EasyDebtorImpl implements Debtor {
 
     @Override
@@ -15,5 +12,10 @@ public class EasyDebtorImpl implements Debtor {
     @Override
     public String[] getFullAddress() {
         return new String[] {"Marc Enschede", "Enschede"};
+    }
+
+    @Override
+    public String getEuTaxId() {
+        return "DE1234567890";
     }
 }
