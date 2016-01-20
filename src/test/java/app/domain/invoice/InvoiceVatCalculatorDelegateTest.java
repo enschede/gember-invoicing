@@ -48,9 +48,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
@@ -95,9 +95,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
@@ -142,9 +142,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
@@ -189,9 +189,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
@@ -237,9 +237,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
@@ -280,9 +280,9 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate).get();
+                invoice.configuration.vatRepository.findByTariffAndDate(VatTariff.LOW1, vatReferenceDate);
 
         // When
         InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);

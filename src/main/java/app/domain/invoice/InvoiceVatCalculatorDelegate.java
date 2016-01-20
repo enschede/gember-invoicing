@@ -23,7 +23,7 @@ public class InvoiceVatCalculatorDelegate {
             return new HashMap<>();
         }
 
-        Map<Optional<VatPercentage>, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
+        Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
                 invoice.invoiceLines.stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> invoice.configuration.vatRepository.findByTariffAndDate(
@@ -32,7 +32,7 @@ public class InvoiceVatCalculatorDelegate {
 
         Set<IsoCountryCode> listOfUniqueIsoCountryCodes =
                 mapOfInvoiceLinesPerVatPercentage.keySet().stream()
-                        .map(vatPercentage -> vatPercentage.get().isoCountryCode)
+                        .map(vatPercentage -> vatPercentage.isoCountryCode)
                         .collect(Collectors.toSet());
 
         // Moet deze controle wel? Destination country is een attribuut van de invoice
@@ -41,9 +41,9 @@ public class InvoiceVatCalculatorDelegate {
 
         return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
                         .collect(Collectors.toMap(
-                                optionalListEntry -> optionalListEntry.getKey().get(),
+                                Map.Entry::getKey,
                                 optionalListEntry -> calculateVatAmountForVatTariff(
-                                        optionalListEntry.getKey().get(),
+                                        optionalListEntry.getKey(),
                                         optionalListEntry.getValue())));
     }
 

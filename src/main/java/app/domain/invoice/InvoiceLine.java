@@ -31,7 +31,7 @@ public abstract class InvoiceLine {
                 .findByTariffAndDate(
                         getVatTariff(),
                         getVatReferenceDate())
-                .get().createVatAmountInfo(
+                .createVatAmountInfo(
                         includingVatInvoice,
                         getLineAmountExclVat(),
                         getLineAmountInclVat());
