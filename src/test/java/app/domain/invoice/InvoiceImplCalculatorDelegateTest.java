@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-public class InvoiceVatCalculatorDelegateTest {
+public class InvoiceImplCalculatorDelegateTest {
 
     // A date in 1992 is choosen because of the high VAT tariff a that time (17.5%).
     // The .5 introduces a lot of roundings hell :-)
@@ -23,7 +23,7 @@ public class InvoiceVatCalculatorDelegateTest {
 
     @Test
     public void shouldCalculateVatForBusinessInvoiceAndOnSubTotals() {
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(false)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -51,26 +51,26 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.35"), new BigDecimal("2.00"), new BigDecimal("2.35"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.06"), new BigDecimal("1.00"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(nl), equalTo(new BigDecimal("0.41")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.41")));
     }
 
     @Test
     public void shouldCalculateVatForConsumerInvoiceAndOnSubTotals() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -98,26 +98,26 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.35"), new BigDecimal("2.01"), new BigDecimal("2.36"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.06"), new BigDecimal("1.00"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(nl), equalTo(new BigDecimal("0.41")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.41")));
     }
 
     @Test
     public void shouldCalculateVatForBusinessInvoiceAndOnLineVat() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(false)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -145,26 +145,26 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.36"), new BigDecimal("2.00"), new BigDecimal("2.36"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.06"), new BigDecimal("1.00"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(nl), equalTo(new BigDecimal("0.42")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.42")));
     }
 
     @Test
     public void shouldCalculateVatForConsumerInvoiceAndOnLineVat() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -192,26 +192,28 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.36"), new BigDecimal("2.00"), new BigDecimal("2.36"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.06"), new BigDecimal("1.00"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(nl), equalTo(new BigDecimal("0.42")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.42")));
+        assertThat(invoiceCalculatorDelegate.getInvoiceTotalExclVat(), equalTo(new BigDecimal("3.00")));
+        assertThat(invoiceCalculatorDelegate.getInvoiceTotalInclVat(), equalTo(new BigDecimal("3.42")));
     }
 
     @Test
     public void shouldCalculateVatForEuBusinessInvoice() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(false)
                 .setCountryOfDestination("DE")
@@ -240,21 +242,21 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(0));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
     }
 
     @Test
     public void shouldCalculateVatForEuConsumerInvoice() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setCountryOfDestination("DE")
@@ -283,26 +285,26 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(de, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(de, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(de, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(de, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(de).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(de).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.28"), new BigDecimal("2.08"), new BigDecimal("2.36"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(de).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.07"), new BigDecimal("0.99"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(de), equalTo(new BigDecimal("0.35")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.35")));
     }
 
     @Test
     public void shouldCalculateVatForConsumerExportInvoiceAndOnSubTotals() {
         // Given
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setCountryOfDestination("TR")
@@ -331,20 +333,20 @@ public class InvoiceVatCalculatorDelegateTest {
                 .build();
 
         VatPercentage vatPercentageHigh =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.HIGH, vatReferenceDate);
         VatPercentage vatPercentageLow =
-                invoice.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
+                invoiceImpl.configuration.vatRepository.findByTariffAndDate(nl, VatTariff.LOW1, vatReferenceDate);
 
         // When
-        InvoiceVatCalculatorDelegate invoiceVatCalculatorDelegate = new InvoiceVatCalculatorDelegate(invoice);
+        InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(invoiceImpl);
 
         // Then
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).size(), Matchers.is(2));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageHigh),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().size(), Matchers.is(2));
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageHigh),
                 equalTo(new VatAmountSummary(vatPercentageHigh, new BigDecimal("0.35"), new BigDecimal("2.01"), new BigDecimal("2.36"))));
-        assertThat(invoiceVatCalculatorDelegate.getAmountSummariesGroupedByVatPercentage(nl).get(vatPercentageLow),
+        assertThat(invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage().get(vatPercentageLow),
                 equalTo(new VatAmountSummary(vatPercentageLow, new BigDecimal("0.06"), new BigDecimal("1.00"), new BigDecimal("1.06"))));
-        assertThat(invoiceVatCalculatorDelegate.getTotalAmountVat(nl), equalTo(new BigDecimal("0.41")));
+        assertThat(invoiceCalculatorDelegate.getTotalAmountVat(), equalTo(new BigDecimal("0.41")));
     }
 
 }

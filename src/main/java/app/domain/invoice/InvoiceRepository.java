@@ -7,11 +7,11 @@ import java.util.UUID;
  */
 public class InvoiceRepository {
 
-    public void store(Invoice invoice) {
+    public void store(InvoiceImpl invoiceImpl) {
 
     }
 
-    public Invoice findById(UUID expetedUuid) {
+    public InvoiceImpl findById(UUID expetedUuid) {
         return null;
     }
 }

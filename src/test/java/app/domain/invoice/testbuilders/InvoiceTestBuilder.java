@@ -1,16 +1,13 @@
 package app.domain.invoice.testbuilders;
 
-import app.domain.debtor.EasyDebtorImpl;
 import app.domain.invoice.*;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 public class InvoiceTestBuilder {
 
     private Configuration configuration = ConfigurationTestBuilder.newInstance().setDefault().build();
-    private UUID id;
     private Boolean consumerInvoice;
     private Debtor debtor;
     private IsoCountryCode countryOfOrigin;
@@ -18,8 +15,7 @@ public class InvoiceTestBuilder {
     private List<InvoiceLine> invoiceLineList = new LinkedList<>();
 
     public InvoiceTestBuilder createDefault() {
-        this.setId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
-                .setConsumerInvoice(false)
+        this.setConsumerInvoice(false)
                 .setDebtor(new EasyDebtorImpl())
                 .setCountryOfOrigin("NL")
                 .setCountryOfDestination("NL");
@@ -28,11 +24,6 @@ public class InvoiceTestBuilder {
 
     public InvoiceTestBuilder setConfiguration(Configuration configuration) {
         this.configuration = configuration;
-        return this;
-    }
-
-    public InvoiceTestBuilder setId(UUID id) {
-        this.id = id;
         return this;
     }
 
@@ -65,17 +56,16 @@ public class InvoiceTestBuilder {
         return new InvoiceTestBuilder();
     }
 
-    public Invoice build() {
-        Invoice invoice = new Invoice(configuration);
-        invoice.setId(id);
-        invoice.setConsumerInvoice(consumerInvoice);
-        invoice.setDebtor(debtor);
-        invoice.setInvoiceLines(invoiceLineList);
-        invoice.setCountryOfOrigin(countryOfOrigin);
-        invoice.setCountryOfDestination(countryOfDestination);
+    public InvoiceImpl build() {
+        InvoiceImpl invoiceImpl = new InvoiceImpl(configuration);
+        invoiceImpl.setConsumerInvoice(consumerInvoice);
+        invoiceImpl.setDebtor(debtor);
+        invoiceImpl.setInvoiceLines(invoiceLineList);
+        invoiceImpl.setCountryOfOrigin(countryOfOrigin);
+        invoiceImpl.setCountryOfDestination(countryOfDestination);
 
-        invoiceLineList.stream().forEach(invoiceLine -> invoiceLine.setInvoice(invoice));
+        invoiceLineList.stream().forEach(invoiceLine -> invoiceLine.setInvoiceImpl(invoiceImpl));
 
-        return invoice;
+        return invoiceImpl;
     }
 }

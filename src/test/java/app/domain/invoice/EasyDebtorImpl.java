@@ -1,6 +1,4 @@
-package app.domain.debtor;
-
-import app.domain.invoice.Debtor;
+package app.domain.invoice;
 
 public class EasyDebtorImpl implements Debtor {
 
@@ -17,5 +15,10 @@ public class EasyDebtorImpl implements Debtor {
     @Override
     public String getEuTaxId() {
         return "DE1234567890";
+    }
+
+    @Override
+    public String getCountryId() {
+        return null;
     }
 }

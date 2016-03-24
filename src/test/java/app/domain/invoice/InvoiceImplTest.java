@@ -11,13 +11,13 @@ import java.time.LocalDate;
 
 import static org.junit.Assert.assertThat;
 
-public class InvoiceTest {
+public class InvoiceImplTest {
 
     @Test
     public void shouldCalculateInvoiceAmountVatsExclVatInvoice() {
         LocalDate vatReferenceDate = LocalDate.of(2016, 10, 1);
 
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(false)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -44,16 +44,16 @@ public class InvoiceTest {
                         .build())
                 .build();
 
-        assertThat(invoice.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.48")));
-        assertThat(invoice.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("3.00")));
-        assertThat(invoice.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.48")));
+        assertThat(invoiceImpl.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.48")));
+        assertThat(invoiceImpl.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("3.00")));
+        assertThat(invoiceImpl.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.48")));
     }
 
     @Test
     public void shouldCalculateInvoiceAmountsOfInclVatInvoice() {
         LocalDate vatReferenceDate = LocalDate.of(2016, 10, 1);
 
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setConfiguration(ConfigurationTestBuilder.newInstance()
@@ -81,16 +81,16 @@ public class InvoiceTest {
                 .build();
 
 
-        assertThat(invoice.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.47")));
-        assertThat(invoice.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("2.95")));
-        assertThat(invoice.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.42")));
+        assertThat(invoiceImpl.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.47")));
+        assertThat(invoiceImpl.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("2.95")));
+        assertThat(invoiceImpl.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.42")));
     }
 
     @Test
     public void shouldCalculateIntraCommunityInvoiceAmountVatsExclVatInvoice() {
         LocalDate vatReferenceDate = LocalDate.of(2016, 1, 1);
 
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(false)
                 .setCountryOfDestination("DE")
@@ -118,16 +118,16 @@ public class InvoiceTest {
                         .build())
                 .build();
 
-        assertThat(invoice.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.00")));
-        assertThat(invoice.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("3.00")));
-        assertThat(invoice.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.00")));
+        assertThat(invoiceImpl.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.45")));
+        assertThat(invoiceImpl.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("3.00")));
+        assertThat(invoiceImpl.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.45")));
     }
 
     @Test
     public void shouldCalculateIntraCommunityInvoiceAmountsOfInclVatInvoice() {
         LocalDate vatReferenceDate = LocalDate.of(2016, 1, 1);
 
-        Invoice invoice = InvoiceTestBuilder.newInstance()
+        InvoiceImpl invoiceImpl = InvoiceTestBuilder.newInstance()
                 .createDefault()
                 .setConsumerInvoice(true)
                 .setCountryOfDestination("DE")
@@ -156,9 +156,9 @@ public class InvoiceTest {
                 .build();
 
 
-        assertThat(invoice.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.45")));
-        assertThat(invoice.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("2.97")));
-        assertThat(invoice.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.42")));
+        assertThat(invoiceImpl.getInvoiceTotalVat(), Matchers.is(new BigDecimal("0.45")));
+        assertThat(invoiceImpl.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal("2.97")));
+        assertThat(invoiceImpl.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal("3.42")));
     }
 
 }

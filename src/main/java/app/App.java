@@ -5,13 +5,9 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.rest.RepositoryRestMvcAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = App.class)
-@ImportResource("classpath:application-*.xml")
-@EnableJpaRepositories                                // Create JPA Repositories
 @Import(RepositoryRestMvcAutoConfiguration.class)     // Expose REST API automatically
 public class App {
 

@@ -50,6 +50,26 @@ public class VatPercentage {
         }
     }
 
+    public IsoCountryCode getIsoCountryCode() {
+        return isoCountryCode;
+    }
+
+    public VatTariff getVatTariff() {
+        return vatTariff;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public BigDecimal getPercentage() {
+        return percentage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

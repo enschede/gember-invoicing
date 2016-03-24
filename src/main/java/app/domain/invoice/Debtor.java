@@ -7,4 +7,6 @@ public interface Debtor {
     String[] getFullAddress();
 
     String getEuTaxId();
+
+    String getCountryId();
 }

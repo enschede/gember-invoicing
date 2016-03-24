@@ -5,14 +5,14 @@ import java.time.LocalDate;
 
 public abstract class InvoiceLine {
 
-    Invoice invoice;
+    InvoiceImpl invoiceImpl;
 
-    public Invoice getInvoice() {
-        return invoice;
+    public InvoiceImpl getInvoiceImpl() {
+        return invoiceImpl;
     }
 
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
+    public void setInvoiceImpl(InvoiceImpl invoiceImpl) {
+        this.invoiceImpl = invoiceImpl;
     }
 
     public abstract VatTariff getVatTariff();
@@ -26,10 +26,10 @@ public abstract class InvoiceLine {
     public abstract String[] getDescription();
 
     public VatAmountSummary getVatAmount(IsoCountryCode destinationCountry, Boolean consumerInvoice) {
-        return invoice.configuration
+        return invoiceImpl.configuration
                 .getVatRepository()
                 .findByTariffAndDate(
-                        invoice.intraCommunityTransactionDelegate.getVatCountry(),
+                        invoiceImpl.invoiceVatRegimeDelegate.getVatOriginCountry(),
                         getVatTariff(),
                         getVatReferenceDate())
                 .createVatAmountInfo(

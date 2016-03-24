@@ -8,6 +8,18 @@ import app.domain.invoice.Configuration;
 public class ConfigurationTestBuilder {
 
     boolean configuredForCalculateVatOnIndividualLines;
+    private String homeCountry;
+    private boolean largeCompany;
+
+    public ConfigurationTestBuilder setHomeCountry(String homeCountry) {
+        this.homeCountry = homeCountry;
+        return this;
+    }
+
+    public ConfigurationTestBuilder setLargeCompany(boolean largeCompany) {
+        this.largeCompany = largeCompany;
+        return this;
+    }
 
     public ConfigurationTestBuilder setDefault() {
         this.configuredForCalculateVatOnIndividualLines = false;
