@@ -29,7 +29,7 @@ public abstract class InvoiceLine {
         return invoiceImpl.configuration
                 .getVatRepository()
                 .findByTariffAndDate(
-                        invoiceImpl.invoiceVatRegimeDelegate.getVatOriginCountry(),
+                        invoiceImpl.invoiceVatRegimeDelegate.getVatDeclarationCountry(),
                         getVatTariff(),
                         getVatReferenceDate())
                 .createVatAmountInfo(

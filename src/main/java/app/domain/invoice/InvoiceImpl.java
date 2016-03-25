@@ -15,6 +15,8 @@ public class InvoiceImpl implements Invoice {
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
     protected IsoCountryCode countryOfOrigin;
     protected IsoCountryCode countryOfDestination;
+    protected boolean consumerInvoice;
+    protected boolean vatShifted;
 
     public InvoiceImpl(Configuration configuration) {
         this.configuration = configuration;
@@ -24,11 +26,11 @@ public class InvoiceImpl implements Invoice {
     }
 
     public Boolean getConsumerInvoice() {
-        return invoiceVatRegimeDelegate.consumerInvoice;
+        return consumerInvoice;
     }
 
     public void setConsumerInvoice(Boolean consumerInvoice) {
-        this.invoiceVatRegimeDelegate.consumerInvoice = consumerInvoice;
+        this.consumerInvoice = consumerInvoice;
     }
 
     public Debtor getDebtor() {
@@ -53,6 +55,14 @@ public class InvoiceImpl implements Invoice {
 
     public void setCountryOfDestination(IsoCountryCode countryOfDestination) {
         this.countryOfDestination = countryOfDestination;
+    }
+
+    public boolean isVatShifted() {
+        return vatShifted;
+    }
+
+    public void setVatShifted(boolean vatShifted) {
+        this.vatShifted = vatShifted;
     }
 
     public List<InvoiceLine> getInvoiceLines() {

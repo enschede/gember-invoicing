@@ -5,8 +5,6 @@ import org.springframework.util.StringUtils;
 public class InvoiceVatRegimeDelegate {
     private final InvoiceImpl invoiceImpl;
 
-    protected boolean consumerInvoice;
-    protected boolean vatShifted;
     protected boolean euIntraCummunityTransaction;
     protected boolean euIntraCummunityServices;
 
@@ -16,7 +14,7 @@ public class InvoiceVatRegimeDelegate {
 
     InternationalTaxRuleType getInternationalTaxRuleType() {
 
-        if (consumerInvoice) {
+        if (invoiceImpl.getConsumerInvoice()) {
             return InternationalTaxRuleType.CONSUMER;
         }
 
@@ -24,26 +22,26 @@ public class InvoiceVatRegimeDelegate {
             return InternationalTaxRuleType.EXPORT;
         }
 
-        if (euIntraCummunityTransaction && !euIntraCummunityServices && compliesToEuropeanIntraCummunityTransactions()) {
-            return InternationalTaxRuleType.B2B_INTRA_COMMUNITY_GOODS;
+        if (euIntraCummunityTransaction && !euIntraCummunityServices && isCompliantForEuropeanIntraCummunityTransactions()) {
+            return InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_GOODS;
         }
 
-        if (euIntraCummunityServices && !euIntraCummunityTransaction && compliesToEuropeanIntraCummunityTransactions()) {
-            return InternationalTaxRuleType.B2B_INTRA_COMMUNITY_SHIFTED_VAT;
+        if (euIntraCummunityServices && !euIntraCummunityTransaction && isCompliantForEuropeanIntraCummunityTransactions()) {
+            return InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT;
         }
 
-        if (vatShifted) {
-            return InternationalTaxRuleType.B2B_SHIFTED_VAT;
+        if (invoiceImpl.isVatShifted()) {
+            return InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT;
         }
 
         return InternationalTaxRuleType.B2B_NATIONAL;
     }
 
-    private boolean compliesToEuropeanIntraCummunityTransactions() {
+    private boolean isCompliantForEuropeanIntraCummunityTransactions() {
         IsoCountryCode countryOfOrigin = invoiceImpl.getCountryOfOrigin();
         IsoCountryCode countryOfDestination = invoiceImpl.getCountryOfDestination();
 
-        return !consumerInvoice
+        return !invoiceImpl.getConsumerInvoice()
                 && countryOfOrigin != null
                 && countryOfDestination != null
                 && countryOfDestination.isEuCountry()
@@ -51,7 +49,8 @@ public class InvoiceVatRegimeDelegate {
                 && !StringUtils.isEmpty(invoiceImpl.debtor.getEuTaxId());
     }
 
-    IsoCountryCode getVatOriginCountry() {
+    // Shows the EU country where the VAT should be declared
+    IsoCountryCode getVatDeclarationCountry() {
         IsoCountryCode countryOfDestination = invoiceImpl.getCountryOfDestination();
 
         return countryOfDestination.isEuCountry() ?
@@ -61,9 +60,9 @@ public class InvoiceVatRegimeDelegate {
     public enum InternationalTaxRuleType {
         CONSUMER,
         B2B_NATIONAL,
-        B2B_INTRA_COMMUNITY_GOODS,
-        B2B_INTRA_COMMUNITY_SHIFTED_VAT,
-        B2B_SHIFTED_VAT,
+        B2B_NATIONAL_SHIFTED_VAT,
+        B2B_EU_INTRA_COMMUNITY_GOODS,
+        B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT,
         EXPORT
     }
 }

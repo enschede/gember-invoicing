@@ -16,7 +16,7 @@ public class InvoiceCalculatorDelegate {
     }
 
     public BigDecimal getInvoiceTotalInclVat() {
-        if (regime.consumerInvoice) {
+        if (invoice.consumerInvoice) {
             return sumLineTotalsInclVat();
         } else {
             return sumLineTotalsExclVat().add(getTotalAmountVat());
@@ -24,7 +24,7 @@ public class InvoiceCalculatorDelegate {
     }
 
     public BigDecimal getInvoiceTotalExclVat() {
-        if (!regime.consumerInvoice) {
+        if (!invoice.consumerInvoice) {
             return sumLineTotalsExclVat();
         } else {
             return sumLineTotalsInclVat().subtract(getTotalAmountVat());
@@ -51,8 +51,8 @@ public class InvoiceCalculatorDelegate {
 
     public Map<VatPercentage, VatAmountSummary> getAmountSummariesGroupedByVatPercentage() {
         InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType = regime.getInternationalTaxRuleType();
-        if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_INTRA_COMMUNITY_SHIFTED_VAT
-                || internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_SHIFTED_VAT) {
+        if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT
+                || internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT) {
             return new HashMap<>();
         }
 
@@ -60,7 +60,7 @@ public class InvoiceCalculatorDelegate {
                 invoice.invoiceLines.stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> configuration.vatRepository.findByTariffAndDate(
-                                        regime.getVatOriginCountry(),
+                                        regime.getVatDeclarationCountry(),
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
 
@@ -76,26 +76,26 @@ public class InvoiceCalculatorDelegate {
 
         if (calculateVatOnSummaryBase()) {
             // This value is not calculated for a including VAT invoiceImpl, as is never used then
-            BigDecimal totalSumExclVat = !regime.consumerInvoice ?
+            BigDecimal totalSumExclVat = !invoice.consumerInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountExclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             // This value is not calculated for a excluding VAT invoiceImpl, as is never used then
-            BigDecimal totalSumInclVat = regime.consumerInvoice ?
+            BigDecimal totalSumInclVat = invoice.consumerInvoice ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountInclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             return vatPercentage.createVatAmountInfo(
-                    regime.consumerInvoice,
+                    invoice.consumerInvoice,
                     totalSumExclVat,
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getCountryOfDestination(), regime.consumerInvoice))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getCountryOfDestination(), invoice.consumerInvoice))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }
