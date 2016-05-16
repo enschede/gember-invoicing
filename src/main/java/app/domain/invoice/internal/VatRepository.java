@@ -1,4 +1,4 @@
-package app.domain.invoice;
+package app.domain.invoice.internal;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

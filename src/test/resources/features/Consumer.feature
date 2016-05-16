@@ -1,58 +1,41 @@
-Feature: An invoice is created for a private customer
+Feature: Consumenten factuur
 
   Background:
-    Given A company that resides "NL"
+    Given A company with VAT id "NL0123456789B01" in "NL" and vat calculation policy is "VAT_CALCULATION_ON_TOTAL"
+    And An invoiceline worth "121.00" euro "incl" VAT with "High" vat level and referencedate is "2016-01-01"
+    And An invoiceline worth "106.00" euro "incl" VAT with "Low1" vat level and referencedate is "2016-01-01"
+    And An invoiceline worth "100.00" euro "incl" VAT with "Zero" vat level and referencedate is "2016-01-01"
 
-  Scenario: A company sends an invoice to a private customer in the same country
-    Given An invoiceline worth "121.00" euro incl VAT with "High" vat level and referencedate is "2016-01-01"
-    And The customer is private and resident in "NL"
-    And The delivery is from "NL" to "NL"
-    When An invoice is created at "2016-01-01"
-    Then The total amount including VAT is "121.00"
-    And The total amount excluding VAT is "100.00"
-    And The total amount VAT is "21.00"
-    And The VAT amount for percentage "21.00" is "21.00"
+  Scenario Outline: levering zonder extra registratie in DE
+    Given A customer without a validated VAT id
+    Given Country of origin is "<origin>"
+    Given Country of destination is "<destination>"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "<totalAmountVat>"
+    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>"
 
-  Scenario: A company sends an invoice to a private customer in another EU country
-    Given An invoiceline worth "121.00" euro incl VAT with "High" vat level and referencedate is "2016-01-01"
-    And The customer is private and resident in "DE"
-    And The delivery is from "NL" to "NL"
-    When An invoice is created at "2016-01-01"
-    Then The total amount including VAT is "121.00"
-    And The total amount excluding VAT is "100.00"
-    And The total amount VAT is "21.00"
-    And The VAT amount for percentage "21.00" is "21.00"
+    Examples:
+      | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | NL     | DE          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | NL     | DE          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | NL     | DE          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | NL     | TR          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | NL     | TR          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | NL     | TR          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | BE     | BE          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | BE     | BE          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | BE     | BE          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | BE     | DE          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | BE     | DE          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | BE     | DE          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | BE     | TR          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | BE     | TR          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | BE     | TR          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
 
-  Scenario: A small company sends an invoice to a private customer in another EU country
-    Given An invoiceline worth "121.00" euro incl VAT with "High" vat level and referencedate is "2016-01-01"
-    And The customer is private and resident in "DE"
-    And The delivery is from "NL" to "NL"
-    When An invoice is created at "2016-01-01"
-    Then The total amount including VAT is "121.00"
-    And The total amount excluding VAT is "100.00"
-    And The total amount VAT is "21.00"
-    And The VAT amount for percentage "21.00" is "21.00"
 
-  Scenario: A company sends an invoice to a private customer outside the EU zone
-    Given An invoiceline worth "121.00" euro incl VAT with "High" vat level and referencedate is "2016-01-01"
-    And The customer is private and resident in "TR"
-    And The delivery is from "NL" to "NL"
-    When An invoice is created at "2016-01-01"
-    Then The total amount including VAT is "121.00"
-    And The total amount excluding VAT is "100.00"
-    And The total amount VAT is "21.00"
-    And The VAT amount for percentage "21.00" is "21.00"
-
-  Scenario: A company sends an invoice to a private customer in the same country
-    Given An invoiceline worth "121.00" euro incl VAT with "High" vat level and referencedate is "2016-01-01"
-    And An invoiceline worth "106.00" euro incl VAT with "Low1" vat level and referencedate is "2016-01-01"
-#    And An invoiceline worth "100.00" euro incl VAT with "Zero" vat level and referencedate is "2016-01-01"
-    And The customer is private and resident in "NL"
-    And The delivery is from "NL" to "NL"
-    When An invoice is created at "2016-01-01"
-    Then The total amount including VAT is "227.00"
-    And The total amount excluding VAT is "200.00"
-    And The total amount VAT is "27.00"
-    And The VAT amount for percentage "21.00" is "21.00"
-    And The VAT amount for percentage "6.00" is "6.00"
 

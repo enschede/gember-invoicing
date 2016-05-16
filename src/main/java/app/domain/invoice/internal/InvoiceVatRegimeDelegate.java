@@ -1,6 +1,8 @@
-package app.domain.invoice;
+package app.domain.invoice.internal;
 
 import org.springframework.util.StringUtils;
+
+import java.util.Optional;
 
 public class InvoiceVatRegimeDelegate {
     private final InvoiceImpl invoiceImpl;
@@ -18,7 +20,8 @@ public class InvoiceVatRegimeDelegate {
             return InternationalTaxRuleType.CONSUMER;
         }
 
-        if (invoiceImpl.getCountryOfDestination() != null && !invoiceImpl.getCountryOfDestination().isEuCountry()) {
+        if (invoiceImpl.getProductDestinationCountry().isPresent()
+                && !invoiceImpl.getProductDestinationCountry().get().isEuCountry()) {
             return InternationalTaxRuleType.EXPORT;
         }
 
@@ -38,23 +41,23 @@ public class InvoiceVatRegimeDelegate {
     }
 
     private boolean isCompliantForEuropeanIntraCummunityTransactions() {
-        IsoCountryCode countryOfOrigin = invoiceImpl.getCountryOfOrigin();
-        IsoCountryCode countryOfDestination = invoiceImpl.getCountryOfDestination();
+        Optional<IsoCountryCode> countryOfOrigin = invoiceImpl.getProductOriginCountry();
+        Optional<IsoCountryCode> countryOfDestination = invoiceImpl.getProductDestinationCountry();
 
         return !invoiceImpl.getConsumerInvoice()
-                && countryOfOrigin != null
-                && countryOfDestination != null
-                && countryOfDestination.isEuCountry()
-                && !countryOfDestination.equals(countryOfOrigin)
+                && countryOfOrigin.isPresent()
+                && countryOfDestination.isPresent()
+                && countryOfDestination.get().isEuCountry()
+                && !countryOfDestination.get().equals(countryOfOrigin.get())
                 && !StringUtils.isEmpty(invoiceImpl.debtor.getEuTaxId());
     }
 
     // Shows the EU country where the VAT should be declared
-    IsoCountryCode getVatDeclarationCountry() {
-        IsoCountryCode countryOfDestination = invoiceImpl.getCountryOfDestination();
+    public IsoCountryCode getVatDeclarationCountry() {
+        IsoCountryCode countryOfDestination = invoiceImpl.getProductDestinationCountry().get();
 
         return countryOfDestination.isEuCountry() ?
-                countryOfDestination : invoiceImpl.getCountryOfOrigin();
+                countryOfDestination : invoiceImpl.getProductOriginCountry().get();
     }
 
     public enum InternationalTaxRuleType {

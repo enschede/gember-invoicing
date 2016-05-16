@@ -1,18 +1,21 @@
-package app.domain.invoice;
+package app.domain.invoice.internal;
+
+import app.domain.invoice.InvoiceLine;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class InvoiceCalculatorDelegate {
     private final InvoiceImpl invoice;
     private final InvoiceVatRegimeDelegate regime;
-    private final Configuration configuration;
+    private final VatRepository vatRepository = new VatRepository();
 
     public InvoiceCalculatorDelegate(InvoiceImpl invoice) {
         this.invoice = invoice;
         this.regime = invoice.invoiceVatRegimeDelegate;
-        this.configuration = invoice.configuration;
     }
 
     public BigDecimal getInvoiceTotalInclVat() {
@@ -59,7 +62,7 @@ public class InvoiceCalculatorDelegate {
         Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
                 invoice.invoiceLines.stream()
                         .collect(Collectors.groupingBy(
-                                invoiceLine -> configuration.vatRepository.findByTariffAndDate(
+                                invoiceLine -> vatRepository.findByTariffAndDate(
                                         regime.getVatDeclarationCountry(),
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
@@ -95,14 +98,14 @@ public class InvoiceCalculatorDelegate {
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getCountryOfDestination(), invoice.consumerInvoice))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getProductDestinationCountry().get(), invoice.consumerInvoice))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }
     }
 
     private boolean calculateVatOnSummaryBase() {
-        return !configuration.isConfiguredForCalculateVatOnIndividualLines();
+        return true;
     }
 
 }

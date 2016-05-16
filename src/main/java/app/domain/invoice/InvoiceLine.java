@@ -1,11 +1,23 @@
 package app.domain.invoice;
 
+import app.domain.invoice.internal.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public abstract class InvoiceLine {
 
+    VatRepository vatRepository = new VatRepository();
+
     InvoiceImpl invoiceImpl;
+
+    public abstract BigDecimal getLineAmount();
+
+    public abstract InvoiceLineVatType getInvoiceLineVatType();
+
+    public abstract LocalDate getVatReferenceDate();
+
+    public abstract VatTariff getVatTariff();
 
     public InvoiceImpl getInvoiceImpl() {
         return invoiceImpl;
@@ -15,19 +27,16 @@ public abstract class InvoiceLine {
         this.invoiceImpl = invoiceImpl;
     }
 
-    public abstract VatTariff getVatTariff();
+    public BigDecimal getLineAmountExclVat() {
+        return BigDecimal.ZERO;
+    }
 
-    public abstract LocalDate getVatReferenceDate();
-
-    public abstract BigDecimal getLineAmountExclVat();
-
-    public abstract BigDecimal getLineAmountInclVat();
-
-    public abstract String[] getDescription();
+    public BigDecimal getLineAmountInclVat() {
+        return BigDecimal.ZERO;
+    }
 
     public VatAmountSummary getVatAmount(IsoCountryCode destinationCountry, Boolean consumerInvoice) {
-        return invoiceImpl.configuration
-                .getVatRepository()
+        return vatRepository
                 .findByTariffAndDate(
                         invoiceImpl.invoiceVatRegimeDelegate.getVatDeclarationCountry(),
                         getVatTariff(),

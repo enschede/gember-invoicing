@@ -1,4 +1,4 @@
-package app;
+package app.domain.invoice;
 
 import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
         tags = "~@not_implemented",
         format = {"pretty", "html:target/cucumber"},
-        glue = {"glue.regime"},
+        glue = {"nl.marcenschede.financials.invoicing.glue"},
         features = "classpath:features/",
         strict = false
 )
