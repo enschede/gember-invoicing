@@ -17,19 +17,20 @@ public class InvoiceImpl implements Invoice {
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
     protected Optional<IsoCountryCode> countryOfOrigin;
     protected Optional<IsoCountryCode> countryOfDestination;
-    protected boolean consumerInvoice;
     protected boolean vatShifted;
+    protected InvoiceType invoiceType;
 
     // -- New --
 
     @Override
     public InvoiceType getInvoiceType() {
-        return null;
+        return invoiceType;
     }
 
     @Override
     public void setInvoiceType(InvoiceType invoiceType) {
 
+        this.invoiceType = invoiceType;
     }
 
     @Override
@@ -80,14 +81,6 @@ public class InvoiceImpl implements Invoice {
 
     // --- Old ---
 
-    public Boolean getConsumerInvoice() {
-        return consumerInvoice;
-    }
-
-    public void setConsumerInvoice(Boolean consumerInvoice) {
-        this.consumerInvoice = consumerInvoice;
-    }
-
     public Debtor getDebtor() {
         return debtor;
     }
@@ -96,18 +89,22 @@ public class InvoiceImpl implements Invoice {
         this.debtor = debtor;
     }
 
+    @Override
     public boolean isVatShifted() {
         return vatShifted;
     }
 
+    @Override
     public void setVatShifted(boolean vatShifted) {
         this.vatShifted = vatShifted;
     }
 
+    @Override
     public List<InvoiceLine> getInvoiceLines() {
         return invoiceLines;
     }
 
+    @Override
     public void setInvoiceLines(List<InvoiceLine> invoiceLines) {
         this.invoiceLines = invoiceLines;
     }

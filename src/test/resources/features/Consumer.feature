@@ -10,7 +10,7 @@ Feature: Consumenten factuur
     Given A customer without a validated VAT id
     Given Country of origin is "<origin>"
     Given Country of destination is "<destination>"
-    When A "consumer" invoice is created at "2016-01-01"
+    When A "consumer" invoice with vat shifted equals "false" is created at "2016-01-01"
     Then The total amount including VAT is "<totalAmountInclVat>"
     And The total amount excluding VAT is "<totalAmountExVat>"
     And The total amount VAT is "<totalAmountVat>"

@@ -11,6 +11,7 @@ import org.junit.Assert;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Glue {
@@ -73,7 +74,7 @@ public class Glue {
                                                                                   final String vatTariff,
                                                                                   final String referenceDate) throws Throwable {
 
-        invoiceLines.add(new InvoiceLine() {
+        InvoiceLine invoiceLine = new InvoiceLine() {
             @Override
             public BigDecimal getLineAmount() {
                 return new BigDecimal(lineAmount);
@@ -81,19 +82,29 @@ public class Glue {
 
             @Override
             public InvoiceLineVatType getInvoiceLineVatType() {
+
+                switch (inclExclVat.toUpperCase()) {
+                    case "INCL":
+                        return InvoiceLineVatType.INCLUDING_VAT;
+                    case "EXCL":
+                        return InvoiceLineVatType.EXCLUDING_VAT;
+                }
+
                 return null;
             }
 
             @Override
             public LocalDate getVatReferenceDate() {
-                return null;
+                return LocalDate.parse(referenceDate, DateTimeFormatter.ISO_DATE);
             }
 
             @Override
             public VatTariff getVatTariff() {
-                return null;
+                return VatTariff.valueOf(vatTariff.toUpperCase());
             }
-        });
+        };
+
+        invoiceLines.add(invoiceLine);
 
     }
 
@@ -109,8 +120,8 @@ public class Glue {
         productDestination = Optional.of(new IsoCountryCode(countryCode));
     }
 
-    @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
-    public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
+    @When("^A \"([^\"]*)\" invoice with vat shifted equals \"([^\"]*)\" is created at \"([^\"]*)\"$")
+    public void a_invoice_with_vat_shifted_equals_is_created_at(String invoiceTypeVal, String vatShifted, String invoiceDate) throws Throwable {
 
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
 
@@ -120,6 +131,8 @@ public class Glue {
         invoice.setInvoiceType(invoiceType);
         invoice.setProductOriginCountry(productOrigin);
         invoice.setProductDestinationCountry(productDestination);
+        invoice.setVatShifted(Boolean.valueOf(vatShifted.toUpperCase()));
+        invoice.setInvoiceLines(invoiceLines);
 
         this.invoice = invoice;
     }

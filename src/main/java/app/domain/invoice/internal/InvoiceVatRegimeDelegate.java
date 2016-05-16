@@ -1,5 +1,6 @@
 package app.domain.invoice.internal;
 
+import app.domain.invoice.InvoiceType;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
@@ -16,7 +17,7 @@ public class InvoiceVatRegimeDelegate {
 
     InternationalTaxRuleType getInternationalTaxRuleType() {
 
-        if (invoiceImpl.getConsumerInvoice()) {
+        if (invoiceImpl.getInvoiceType() == InvoiceType.CONSUMER) {
             return InternationalTaxRuleType.CONSUMER;
         }
 
@@ -44,7 +45,7 @@ public class InvoiceVatRegimeDelegate {
         Optional<IsoCountryCode> countryOfOrigin = invoiceImpl.getProductOriginCountry();
         Optional<IsoCountryCode> countryOfDestination = invoiceImpl.getProductDestinationCountry();
 
-        return !invoiceImpl.getConsumerInvoice()
+        return !(invoiceImpl.getInvoiceType() == InvoiceType.CONSUMER)
                 && countryOfOrigin.isPresent()
                 && countryOfDestination.isPresent()
                 && countryOfDestination.get().isEuCountry()

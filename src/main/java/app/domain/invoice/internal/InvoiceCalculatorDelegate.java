@@ -1,6 +1,7 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.InvoiceLine;
+import app.domain.invoice.InvoiceType;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class InvoiceCalculatorDelegate {
     }
 
     public BigDecimal getInvoiceTotalInclVat() {
-        if (invoice.consumerInvoice) {
+        if (invoice.getInvoiceType() == InvoiceType.CONSUMER) {
             return sumLineTotalsInclVat();
         } else {
             return sumLineTotalsExclVat().add(getTotalAmountVat());
@@ -27,7 +28,7 @@ public class InvoiceCalculatorDelegate {
     }
 
     public BigDecimal getInvoiceTotalExclVat() {
-        if (!invoice.consumerInvoice) {
+        if (invoice.getInvoiceType() == InvoiceType.BUSINESS) {
             return sumLineTotalsExclVat();
         } else {
             return sumLineTotalsInclVat().subtract(getTotalAmountVat());
@@ -79,26 +80,26 @@ public class InvoiceCalculatorDelegate {
 
         if (calculateVatOnSummaryBase()) {
             // This value is not calculated for a including VAT invoiceImpl, as is never used then
-            BigDecimal totalSumExclVat = !invoice.consumerInvoice ?
+            BigDecimal totalSumExclVat = invoice.getInvoiceType() == InvoiceType.BUSINESS ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountExclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             // This value is not calculated for a excluding VAT invoiceImpl, as is never used then
-            BigDecimal totalSumInclVat = invoice.consumerInvoice ?
+            BigDecimal totalSumInclVat = invoice.getInvoiceType() == InvoiceType.CONSUMER ?
                     cachedInvoiceLinesForVatTariff.stream()
                             .map(InvoiceLine::getLineAmountInclVat)
                             .reduce(BigDecimal.ZERO, BigDecimal::add) :
                     BigDecimal.ZERO;
 
             return vatPercentage.createVatAmountInfo(
-                    invoice.consumerInvoice,
+                    invoice.getInvoiceType() == InvoiceType.CONSUMER,
                     totalSumExclVat,
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getProductDestinationCountry().get(), invoice.consumerInvoice))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(invoice.getProductDestinationCountry().get(), invoice.getInvoiceType() == InvoiceType.CONSUMER))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }

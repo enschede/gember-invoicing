@@ -6,6 +6,7 @@ import app.domain.invoice.internal.VatAmountSummary;
 import app.domain.invoice.internal.VatPercentage;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,6 +14,10 @@ import java.util.Optional;
  * Created by marc on 06/05/16.
  */
 public interface Invoice {
+    List<InvoiceLine> getInvoiceLines();
+
+    void setInvoiceLines(List<InvoiceLine> invoiceLines);
+
     public BigDecimal getInvoiceTotalInclVat();
 
     public BigDecimal getInvoiceTotalExclVat();

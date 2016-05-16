@@ -28,11 +28,11 @@ public abstract class InvoiceLine {
     }
 
     public BigDecimal getLineAmountExclVat() {
-        return BigDecimal.ZERO;
+        return getInvoiceLineVatType() == InvoiceLineVatType.EXCLUDING_VAT ? getLineAmount() : BigDecimal.ZERO;
     }
 
     public BigDecimal getLineAmountInclVat() {
-        return BigDecimal.ZERO;
+        return getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ? getLineAmount() : BigDecimal.ZERO;
     }
 
     public VatAmountSummary getVatAmount(IsoCountryCode destinationCountry, Boolean consumerInvoice) {
