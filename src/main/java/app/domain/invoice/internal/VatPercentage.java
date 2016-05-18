@@ -49,6 +49,10 @@ public class VatPercentage {
     }
 
     private static BigDecimal getVatAmountFromAmountInclVat(BigDecimal amountInclVat, BigDecimal percentage) {
+
+        if(percentage.compareTo(BigDecimal.ZERO) == 0)
+            return new BigDecimal("0.00");
+
         return amountInclVat
                         .divide(
                                 percentage.add(BigDecimal.valueOf(100))
