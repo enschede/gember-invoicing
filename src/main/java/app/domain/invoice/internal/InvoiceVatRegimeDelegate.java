@@ -1,7 +1,6 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.InvoiceType;
-import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -50,7 +49,8 @@ public class InvoiceVatRegimeDelegate {
                 && countryOfDestination.isPresent()
                 && countryOfDestination.get().isEuCountry()
                 && !countryOfDestination.get().equals(countryOfOrigin.get())
-                && !StringUtils.isEmpty(invoiceImpl.debtor.getEuTaxId());
+//                && !StringUtils.isEmpty(invoiceImpl.debtor.getEuTaxId())
+                ;
     }
 
     // Shows the EU country where the VAT should be declared

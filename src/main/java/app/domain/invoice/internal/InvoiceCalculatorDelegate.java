@@ -2,6 +2,7 @@ package app.domain.invoice.internal;
 
 import app.domain.invoice.InvoiceLine;
 import app.domain.invoice.InvoiceType;
+import app.domain.invoice.VatCalculationPolicy;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
@@ -55,6 +56,7 @@ public class InvoiceCalculatorDelegate {
 
     public Map<VatPercentage, VatAmountSummary> getAmountSummariesGroupedByVatPercentage() {
         InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType = regime.getInternationalTaxRuleType();
+
         if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT
                 || internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT) {
             return new HashMap<>();
@@ -106,7 +108,7 @@ public class InvoiceCalculatorDelegate {
     }
 
     private boolean calculateVatOnSummaryBase() {
-        return true;
+        return invoice.getCompany().getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
     }
 
 }

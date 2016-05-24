@@ -134,6 +134,8 @@ public class Glue {
         invoice.setVatShifted(Boolean.valueOf(vatShifted.toUpperCase()));
         invoice.setInvoiceLines(invoiceLines);
 
+        invoiceLines.forEach(invoiceLine -> invoiceLine.setInvoiceImpl((InvoiceImpl)invoice));
+
         this.invoice = invoice;
     }
 

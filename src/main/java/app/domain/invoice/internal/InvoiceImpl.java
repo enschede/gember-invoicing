@@ -13,7 +13,8 @@ public class InvoiceImpl implements Invoice {
     // These attributes are protected as delegates inspect them on attribute base, not on get-method base
     public final InvoiceVatRegimeDelegate invoiceVatRegimeDelegate = new InvoiceVatRegimeDelegate(this);
     protected final InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(this);
-    protected Debtor debtor;
+//    protected Debtor debtor;
+    protected Company company;
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
     protected Optional<IsoCountryCode> countryOfOrigin;
     protected Optional<IsoCountryCode> countryOfDestination;
@@ -55,7 +56,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public void setCompany(Company company) {
-
+        this.company = company;
     }
 
     @Override
@@ -65,7 +66,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Company getCompany() {
-        return null;
+        return company;
     }
 
     @Override
@@ -81,13 +82,13 @@ public class InvoiceImpl implements Invoice {
 
     // --- Old ---
 
-    public Debtor getDebtor() {
-        return debtor;
-    }
-
-    public void setDebtor(Debtor debtor) {
-        this.debtor = debtor;
-    }
+//    public Debtor getDebtor() {
+//        return debtor;
+//    }
+//
+//    public void setDebtor(Debtor debtor) {
+//        this.debtor = debtor;
+//    }
 
     @Override
     public boolean isVatShifted() {
