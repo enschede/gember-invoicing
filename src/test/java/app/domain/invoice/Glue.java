@@ -3,6 +3,7 @@ package app.domain.invoice;
 import app.domain.invoice.internal.InvoiceImpl;
 import app.domain.invoice.internal.IsoCountryCode;
 import app.domain.invoice.internal.VatTariff;
+import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -24,12 +25,13 @@ public class Glue {
     private Customer customer;
     private Invoice invoice;
 
-    @Given("^A company with VAT id \"([^\"]*)\" in \"([^\"]*)\" and vat calculation policy is \"([^\"]*)\"$")
-    public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String vatId,
-                                                                       final String companyCountry,
+    @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
+    public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String companyCountry,
                                                                        final String vatPolicy) throws Throwable {
 
         company = new Company() {
+            private Map<IsoCountryCode, String> vatRegistrations = new HashMap<>();
+
             @Override
             public VatCalculationPolicy getVatCalculationPolicy() {
                 return VatCalculationPolicy.valueOf(vatPolicy);
@@ -42,13 +44,24 @@ public class Glue {
 
             @Override
             public Map<IsoCountryCode, String> getVatRegistrations() {
-                Map<IsoCountryCode, String> result = new IdentityHashMap<>();
-                result.put(getDefaultVatCountry(), vatId);
+                return vatRegistrations;
+            }
 
-                return result;
+            @Override
+            public boolean hasVatRegistrationFor(IsoCountryCode countryOfDestination) {
+                return vatRegistrations.containsKey(countryOfDestination);
             }
         };
 
+    }
+
+    @Given("^the company has VAT id \"([^\"]*)\" in \"([^\"]*)\"$")
+    public void the_company_has_VAT_id_in(String vatId, String companyCountry) throws Throwable {
+
+        if(company==null)
+            throw new PendingException();
+
+        company.getVatRegistrations().put(new IsoCountryCode(companyCountry), vatId);
     }
 
     @Given("^A customer without a validated VAT id$")
@@ -172,6 +185,40 @@ public class Glue {
 
         Assert.assertThat(actualAmount.isPresent(), Matchers.is(true));
         Assert.assertThat(actualAmount.get(), Matchers.is(new BigDecimal(expectedAmount)));
+    }
+
+    @Then("^The total amount including VAT request throws an invoice calculation exception$")
+    public void the_total_amount_including_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+
+        try {
+            invoice.getInvoiceTotalInclVat();
+        } catch (InvoiceCalculationException e) {
+            return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an invoice calculation exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalInclVat();
+        } catch (InvoiceCalculationException e) {
+            return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount VAT request throws an invoice calculation exception$")
+    public void the_total_amount_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalInclVat();
+        } catch (InvoiceCalculationException e) {
+            return;
+        }
+
+        Assert.fail();
     }
 
 }

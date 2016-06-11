@@ -28,13 +28,13 @@ public class IsoCountryCode {
 
         IsoCountryCode that = (IsoCountryCode) o;
 
-        return isoCountryCode != null ? isoCountryCode.equals(that.isoCountryCode) : that.isoCountryCode == null;
+        return isoCountryCode.equals(that.isoCountryCode);
 
     }
 
     @Override
     public int hashCode() {
-        return isoCountryCode != null ? isoCountryCode.hashCode() : 0;
+        return isoCountryCode.hashCode();
     }
 
     public static boolean isEuCountry(String countryCode) {

@@ -1,5 +1,6 @@
 package app.domain.invoice.internal;
 
+import app.domain.invoice.InvoiceCalculationException;
 import app.domain.invoice.InvoiceType;
 
 import java.util.Optional;
@@ -57,8 +58,13 @@ public class InvoiceVatRegimeDelegate {
     public IsoCountryCode getVatDeclarationCountry() {
         IsoCountryCode countryOfDestination = invoiceImpl.getProductDestinationCountry().get();
 
-        return countryOfDestination.isEuCountry() ?
-                countryOfDestination : invoiceImpl.getProductOriginCountry().get();
+        if(countryOfDestination.isEuCountry() && invoiceImpl.getCompany().hasVatRegistrationFor(countryOfDestination))
+            return countryOfDestination;
+
+        if(invoiceImpl.getProductOriginCountry().isPresent() && invoiceImpl.getCompany().hasVatRegistrationFor(invoiceImpl.getProductOriginCountry().get()))
+            return invoiceImpl.getProductOriginCountry().get();
+
+        throw new InvoiceCalculationException();
     }
 
     public enum InternationalTaxRuleType {

@@ -13,4 +13,6 @@ public interface Company {
     public IsoCountryCode getDefaultVatCountry();
 
     public Map<IsoCountryCode, String> getVatRegistrations();
+
+    boolean hasVatRegistrationFor(IsoCountryCode countryOfDestination);
 }

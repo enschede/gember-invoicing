@@ -32,6 +32,8 @@ public abstract class InvoiceLine {
     }
 
     public BigDecimal getLineAmountInclVat() {
+        invoiceImpl.getInternationalTaxRuleType();
+
         return getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ? getLineAmount() : BigDecimal.ZERO;
     }
 
