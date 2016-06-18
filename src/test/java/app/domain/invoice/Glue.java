@@ -81,6 +81,23 @@ public class Glue {
 
     }
 
+    @Given("^A customer has VAT id \"([^\"]*)\" in \"([^\"]*)\"$")
+    public void a_customer_has_VAT_id_in(String vatId, String countryCode) throws Throwable {
+
+        customer = new Customer() {
+            @Override
+            public Optional<String> getDefaultCountry() {
+                return Optional.ofNullable(vatId);
+            }
+
+            @Override
+            public Optional<String> getEuTaxId() {
+                return Optional.of(countryCode);
+            }
+        };
+
+    }
+
     @Given("^An invoiceline worth \"([^\"]*)\" euro \"([^\"]*)\" VAT with \"([^\"]*)\" vat level and referencedate is \"([^\"]*)\"$")
     public void an_invoiceline_worth_euro_VAT_with_vat_level_and_referencedate_is(final String lineAmount,
                                                                                   final String inclExclVat,

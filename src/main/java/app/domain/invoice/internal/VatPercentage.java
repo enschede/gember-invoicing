@@ -41,14 +41,14 @@ public class VatPercentage {
         }
     }
 
-    private static BigDecimal getVatAmountFromAmountExclVat(BigDecimal amountExclVat, BigDecimal percentage) {
+    public static BigDecimal getVatAmountFromAmountExclVat(BigDecimal amountExclVat, BigDecimal percentage) {
         return amountExclVat
                         .multiply(
                                 percentage.divide(BigDecimal.valueOf(100)))
                         .setScale(2, RoundingMode.HALF_EVEN);
     }
 
-    private static BigDecimal getVatAmountFromAmountInclVat(BigDecimal amountInclVat, BigDecimal percentage) {
+    public static BigDecimal getVatAmountFromAmountInclVat(BigDecimal amountInclVat, BigDecimal percentage) {
 
         if(percentage.compareTo(BigDecimal.ZERO) == 0)
             return new BigDecimal("0.00");

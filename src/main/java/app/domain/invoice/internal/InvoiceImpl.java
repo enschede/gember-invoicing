@@ -3,16 +3,13 @@ package app.domain.invoice.internal;
 import app.domain.invoice.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class InvoiceImpl implements Invoice {
 
     // These attributes are protected as delegates inspect them on attribute base, not on get-method base
     public final InvoiceVatRegimeDelegate invoiceVatRegimeDelegate = new InvoiceVatRegimeDelegate(this);
-    protected final InvoiceCalculatorDelegate invoiceCalculatorDelegate = new InvoiceCalculatorDelegate(this);
     protected Company company;
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
     protected Optional<IsoCountryCode> countryOfOrigin;
@@ -104,23 +101,105 @@ public class InvoiceImpl implements Invoice {
     // --- Virtual data ---
 
     public BigDecimal getInvoiceTotalInclVat() {
-        return invoiceCalculatorDelegate.getInvoiceTotalInclVat();
+
+        final VatRepository vatRepository = new VatRepository();
+        final IsoCountryCode destinationCountry = invoiceVatRegimeDelegate.getVatDeclarationCountry();
+
+        LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
+
+        if(this.getInvoiceType()==InvoiceType.CONSUMER) {
+            BigDecimal totalAmountInclVat = invoiceLines.stream()
+                    .map(invoiceLine -> lineVatCalculator.getLineAmountInclVat(invoiceLine))
+                    .reduce(new BigDecimal("0.00"), BigDecimal::add);
+
+            return totalAmountInclVat;
+        } else {
+            return getInvoiceTotalExclVat().add(getInvoiceTotalVat());
+        }
     }
 
     public BigDecimal getInvoiceTotalExclVat() {
-        return invoiceCalculatorDelegate.getInvoiceTotalExclVat();
+
+        final VatRepository vatRepository = new VatRepository();
+        final IsoCountryCode destinationCountry = invoiceVatRegimeDelegate.getVatDeclarationCountry();
+
+        LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
+
+        if(this.getInvoiceType()==InvoiceType.CONSUMER) {
+            return getInvoiceTotalInclVat().subtract(getInvoiceTotalVat());
+        } else {
+            BigDecimal totalAmountExclVat = invoiceLines.stream()
+                    .map(invoiceLine -> lineVatCalculator.getLineAmountExclVat(invoiceLine))
+                    .reduce(new BigDecimal("0.00"), BigDecimal::add);
+
+            return totalAmountExclVat;
+        }
     }
 
-    private InvoiceVatRegimeDelegate.InternationalTaxRuleType isEffectiveConsumerInvoice() {
-        return invoiceVatRegimeDelegate.getInternationalTaxRuleType();
-    }
-
+    @Override
     public BigDecimal getInvoiceTotalVat() {
-        return invoiceCalculatorDelegate.getTotalAmountVat();
+        return getVatPerVatTariff().values().stream()
+                .map(VatAmountSummary::getAmountVat)
+                .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
+    @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-        return invoiceCalculatorDelegate.getAmountSummariesGroupedByVatPercentage();
+        InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType = invoiceVatRegimeDelegate.getInternationalTaxRuleType();
+        final VatRepository vatRepository = new VatRepository();
+
+        if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT
+                || internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT) {
+            return new HashMap<>();
+        }
+
+        Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
+                invoiceLines.stream()
+                        .collect(Collectors.groupingBy(
+                                invoiceLine -> vatRepository.findByTariffAndDate(
+                                        invoiceVatRegimeDelegate.getVatDeclarationCountry(),
+                                        invoiceLine.getVatTariff(),
+                                        invoiceLine.getVatReferenceDate())));
+
+        return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        optionalListEntry -> calculateVatAmountForVatTariff(
+                                optionalListEntry.getKey(),
+                                optionalListEntry.getValue())));
+    }
+
+    private VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {
+
+        if (calculateVatOnSummaryBase()) {
+            // This value is not calculated for a including VAT invoiceImpl, as is never used then
+            BigDecimal totalSumExclVat = getInvoiceType() == InvoiceType.BUSINESS ?
+                    cachedInvoiceLinesForVatTariff.stream()
+                            .map(InvoiceLine::getLineAmountExclVat)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add) :
+                    BigDecimal.ZERO;
+
+            // This value is not calculated for a excluding VAT invoiceImpl, as is never used then
+            BigDecimal totalSumInclVat = getInvoiceType() == InvoiceType.CONSUMER ?
+                    cachedInvoiceLinesForVatTariff.stream()
+                            .map(InvoiceLine::getLineAmountInclVat)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add) :
+                    BigDecimal.ZERO;
+
+            return vatPercentage.createVatAmountInfo(
+                    getInvoiceType() == InvoiceType.CONSUMER,
+                    totalSumExclVat,
+                    totalSumInclVat);
+        } else {
+            return cachedInvoiceLinesForVatTariff.stream()
+                    .map(invoiceLine -> invoiceLine.getVatAmount(getProductDestinationCountry().get(), getInvoiceType() == InvoiceType.CONSUMER))
+                    .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
+
+        }
+    }
+
+    private boolean calculateVatOnSummaryBase() {
+        return company.getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
     }
 
 }

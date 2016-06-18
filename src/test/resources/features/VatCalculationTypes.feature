@@ -8,7 +8,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
     And An invoiceline worth "100.00" euro "incl" VAT with "High" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "100.00" euro "incl" VAT with "High" vat level and referencedate is "2016-01-01"
 
-  Scenario: delivered by a company with a registration in NL
+  Scenario: totals are calculated on subtotal base
     Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_ON_TOTAL"
     And the company has VAT id "NL0123456789B01" in "NL"
     And A customer without a validated VAT id
@@ -20,7 +20,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
     And The total amount VAT is "104.13"
     And The VAT amount for percentage "21.00" is "104.13"
 
-  Scenario: delivered by a company with a registration in NL
+  Scenario: totals are calculated on per line base
     Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_PER_LINE"
     And the company has VAT id "NL0123456789B01" in "NL"
     And A customer without a validated VAT id
