@@ -114,7 +114,10 @@ public class InvoiceImpl implements Invoice {
 
             return totalAmountInclVat;
         } else {
-            return getInvoiceTotalExclVat().add(getInvoiceTotalVat());
+            BigDecimal invoiceTotalExclVat = getInvoiceTotalExclVat();
+            BigDecimal invoiceTotalVat = getInvoiceTotalVat();
+
+            return invoiceTotalExclVat.add(invoiceTotalVat);
         }
     }
 
@@ -138,14 +141,17 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public BigDecimal getInvoiceTotalVat() {
-        return getVatPerVatTariff().values().stream()
+        Map<VatPercentage, VatAmountSummary> vatPerVatTariff = getVatPerVatTariff();
+
+        return vatPerVatTariff.values().stream()
                 .map(VatAmountSummary::getAmountVat)
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
     @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-        InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType = invoiceVatRegimeDelegate.getInternationalTaxRuleType();
+        final InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType =
+                invoiceVatRegimeDelegate.getInternationalTaxRuleType();
         final VatRepository vatRepository = new VatRepository();
 
         if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT

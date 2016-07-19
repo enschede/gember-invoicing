@@ -1,4 +1,4 @@
-Feature: Delivering to a consumer in the EU.
+Feature: Delivering to a consumer in the EU
   The following situations may occur:
   - A company with registration in the main country delivers goods/services within the same country
   - A company with registration in it's main country delivers goods to another EU country where it has no registration

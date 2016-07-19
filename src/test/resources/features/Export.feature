@@ -1,4 +1,4 @@
-Feature: An invoice for export.
+Feature: An invoice for export
   The following situations may occur:
   - A company with registration in it's main country export goods
   - A company with registration in it's main country export goods from another EU country

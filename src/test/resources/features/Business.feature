@@ -1,4 +1,4 @@
-Feature: Delivering to a business customer in the EU.
+Feature: Delivering to a business customer in the EU
   - A company with registration in the main country delivers goods/services within the same country
   - A company with registration in the main country delivers goods/services within the same country under tax shifted rules
   - A company with registration in the main country delivers goods to a business partner in EU with a tax id
@@ -113,8 +113,8 @@ Feature: Delivering to a business customer in the EU.
 
     Examples:
       | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
-      | BE     | NL          | 325.00             | 300.00           | 27.00          | 19.00         | 19.00     |
-      | BE     | NL          | 325.00             | 300.00           | 27.00          | 6.00          | 6.00      |
-      | BE     | NL          | 325.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | BE     | DE          | 325.00             | 300.00           | 25.00          | 19.00         | 19.00     |
+      | BE     | DE          | 325.00             | 300.00           | 25.00          | 6.00          | 6.00      |
+      | BE     | DE          | 325.00             | 300.00           | 25.00          | 0.00          | 0.00      |
 
   # A company with registration in the main country delivers services to a business partner in EU without a tax id

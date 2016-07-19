@@ -173,7 +173,9 @@ public class Glue {
     public void the_total_amount_including_VAT_is(String expectedTotalAmountIncludingVat) throws Throwable {
         assert invoice != null;
 
-        Assert.assertThat(invoice.getInvoiceTotalInclVat(), Matchers.is(new BigDecimal(expectedTotalAmountIncludingVat)));
+        BigDecimal invoiceTotalInclVat = invoice.getInvoiceTotalInclVat();
+
+        Assert.assertThat(invoiceTotalInclVat, Matchers.is(new BigDecimal(expectedTotalAmountIncludingVat)));
     }
 
     @Then("^The total amount excluding VAT is \"([^\"]*)\"$")
