@@ -1,9 +1,6 @@
 package app.domain.invoice;
 
-import app.domain.invoice.internal.InvoiceVatRegimeDelegate;
-import app.domain.invoice.internal.IsoCountryCode;
-import app.domain.invoice.internal.VatAmountSummary;
-import app.domain.invoice.internal.VatPercentage;
+import app.domain.invoice.internal.*;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -18,9 +15,9 @@ public interface Invoice {
 
     void setInvoiceLines(List<InvoiceLine> invoiceLines);
 
-    public BigDecimal getInvoiceTotalInclVat();
+    public BigDecimal getInvoiceTotalInclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException;
 
-    public BigDecimal getInvoiceTotalExclVat();
+    public BigDecimal getInvoiceTotalExclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException;
 
     public BigDecimal getInvoiceTotalVat();
 
@@ -30,17 +27,13 @@ public interface Invoice {
 
     void setInvoiceType(InvoiceType invoiceType);
 
-    Optional<IsoCountryCode> getProductOriginCountry();
+    Optional<String> getProductOriginCountry();
 
-    void setProductOriginCountry(Optional<IsoCountryCode> productOrigin);
+    void setProductOriginCountry(Optional<String> productOrigin);
 
-    Optional<IsoCountryCode> getProductDestinationCountry();
+    Optional<String> getProductDestinationCountry();
 
-    void setProductDestinationCountry(Optional<IsoCountryCode> productDestination);
-
-    boolean isVatShifted();
-
-    void setVatShifted(boolean vatShifted);
+    void setProductDestinationCountry(Optional<String> productDestination);
 
     void setCompany(Company company);
 
@@ -50,5 +43,9 @@ public interface Invoice {
 
     Customer getCustomer();
 
-    InvoiceVatRegimeDelegate.InternationalTaxRuleType getInternationalTaxRuleType();
+    VatCalculationRegime getInternationalTaxRuleType();
+
+    void setVatShifted(Boolean aBoolean);
+
+    void setProductCategory(Optional<ProductCategory> productCategory);
 }

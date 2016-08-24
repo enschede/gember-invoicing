@@ -14,9 +14,9 @@ public class VatRepository {
      * This static repository contains all Dutch VAT percentages since Oct. 10th, 1986.
      */
     public VatRepository() {
-        IsoCountryCode nl = new IsoCountryCode("NL");
-        IsoCountryCode de = new IsoCountryCode("DE");
-        IsoCountryCode be = new IsoCountryCode("BE");
+        String nl = new String("NL");
+        String de = new String("DE");
+        String be = new String("BE");
 
         percentages = new ArrayList<>();
 
@@ -41,7 +41,7 @@ public class VatRepository {
         percentages.add(new VatPercentage(nl, VatTariff.HIGH, LocalDate.of(2012, 10, 1), null, new BigDecimal("21.00")));
     }
 
-    public VatPercentage findByTariffAndDate(IsoCountryCode destinationCountry, VatTariff vatTariff, LocalDate referenceDate) {
+    public VatPercentage findByTariffAndDate(String destinationCountry, VatTariff vatTariff, LocalDate referenceDate) {
         Optional<VatPercentage> vatPercentage = percentages.stream()
                 .filter(vatPercentage1 -> vatPercentage1.isoCountryCode.equals(destinationCountry)
                         && vatPercentage1.vatTariff == vatTariff

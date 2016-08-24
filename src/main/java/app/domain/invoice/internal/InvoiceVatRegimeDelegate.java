@@ -1,78 +1,83 @@
 package app.domain.invoice.internal;
 
-import app.domain.invoice.InvoiceCalculationException;
-import app.domain.invoice.InvoiceType;
-
+import java.util.Arrays;
 import java.util.Optional;
 
 public class InvoiceVatRegimeDelegate {
     private final InvoiceImpl invoiceImpl;
 
-    protected boolean euIntraCummunityTransaction;
-    protected boolean euIntraCummunityServices;
-
     public InvoiceVatRegimeDelegate(InvoiceImpl invoiceImpl) {
         this.invoiceImpl = invoiceImpl;
     }
 
-    InternationalTaxRuleType getInternationalTaxRuleType() {
+    VatCalculationRegime getInternationalTaxRuleType(
+            final String originCountryIso, final String destinationCountryIso) {
 
-        if (invoiceImpl.getInvoiceType() == InvoiceType.CONSUMER) {
-            return InternationalTaxRuleType.CONSUMER;
+        if (isConsumerInvoice()) {
+            return VatCalculationRegime.CONSUMER;
         }
 
-        if (invoiceImpl.getProductDestinationCountry().isPresent()
-                && !invoiceImpl.getProductDestinationCountry().get().isEuCountry()) {
-            return InternationalTaxRuleType.EXPORT;
+        if (isNationalTransaction(originCountryIso, destinationCountryIso)) {
+            return invoiceImpl.vatShifted ?
+                    VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT : VatCalculationRegime.B2B_NATIONAL;
         }
 
-        if (euIntraCummunityTransaction && !euIntraCummunityServices && isCompliantForEuropeanIntraCummunityTransactions()) {
-            return InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_GOODS;
+        if (isIntraEuTransaction(originCountryIso, destinationCountryIso)) {
+            validateIfProductCategoryIsSet(invoiceImpl.productCategory);
+
+            switch (invoiceImpl.productCategory.get()) {
+                case Goods:
+                    return VatCalculationRegime.B2B_EU_GOODS;
+                case Services:
+                    return VatCalculationRegime.B2B_EU_SERVICES;
+                case EServices:
+                    return VatCalculationRegime.B2B_EU_E_SERVICES;
+            }
         }
 
-        if (euIntraCummunityServices && !euIntraCummunityTransaction && isCompliantForEuropeanIntraCummunityTransactions()) {
-            return InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT;
-        }
-
-        if (invoiceImpl.isVatShifted()) {
-            return InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT;
-        }
-
-        return InternationalTaxRuleType.B2B_NATIONAL;
+        return VatCalculationRegime.EXPORT;
     }
 
-    private boolean isCompliantForEuropeanIntraCummunityTransactions() {
-        Optional<IsoCountryCode> countryOfOrigin = invoiceImpl.getProductOriginCountry();
-        Optional<IsoCountryCode> countryOfDestination = invoiceImpl.getProductDestinationCountry();
-
-        return !(invoiceImpl.getInvoiceType() == InvoiceType.CONSUMER)
-                && countryOfOrigin.isPresent()
-                && countryOfDestination.isPresent()
-                && countryOfDestination.get().isEuCountry()
-                && !countryOfDestination.get().equals(countryOfOrigin.get())
-//                && !StringUtils.isEmpty(invoiceImpl.debtor.getEuTaxId())
-                ;
+    private void validateIfProductCategoryIsSet(Optional<ProductCategory> productCategory) {
+        if(!productCategory.isPresent())
+            throw new ProductCategoryNotSetException();
     }
+
+    private void validateIfOriginCountryIsEuCountry(String originCountryIso)
+            throws OriginIsNotEuCountryException {
+        if( !isEuCountry(originCountryIso) )
+            throw new OriginIsNotEuCountryException(originCountryIso);
+    }
+
+    private boolean isEuCountry(String originCountryIso) {
+        return Arrays
+                .stream(EuCountry.values())
+                .anyMatch(euCountry -> euCountry.name().equals(originCountryIso));
+    }
+
+    private boolean isNationalTransaction(String originCountryIso, String destinationCountryIso) {
+        return originCountryIso.equals(destinationCountryIso);
+    }
+
+    private boolean isIntraEuTransaction(String originCountryIso, String destinationCountryIso) {
+        return isEuCountry(destinationCountryIso) && !originCountryIso.equals(destinationCountryIso);
+    }
+
+    private boolean isConsumerInvoice() {
+        return !invoiceImpl.getCustomer().getEuTaxId().isPresent();
+    }
+
 
     // Shows the EU country where the VAT should be declared
-    public IsoCountryCode getVatDeclarationCountry() {
-        IsoCountryCode countryOfDestination = invoiceImpl.getProductDestinationCountry().get();
+    public String getVatDeclarationCountryIso(final String originCountryIso, final String destinationCountryIso) {
 
-        if(countryOfDestination.isEuCountry() && invoiceImpl.getCompany().hasVatRegistrationFor(countryOfDestination))
-            return countryOfDestination;
+        VatCalculationRegime vatCalculationRegime = getInternationalTaxRuleType(originCountryIso, destinationCountryIso);
 
-        if(invoiceImpl.getProductOriginCountry().isPresent() && invoiceImpl.getCompany().hasVatRegistrationFor(invoiceImpl.getProductOriginCountry().get()))
-            return invoiceImpl.getProductOriginCountry().get();
+        if(vatCalculationRegime.equals(VatCalculationRegime.CONSUMER) && invoiceImpl.getCompany().getVatRegistrations().containsKey(destinationCountryIso)) {
+            return destinationCountryIso;
+        }
 
-        throw new InvoiceCalculationException();
+        return originCountryIso;
     }
 
-    public enum InternationalTaxRuleType {
-        CONSUMER,
-        B2B_NATIONAL,
-        B2B_NATIONAL_SHIFTED_VAT,
-        B2B_EU_INTRA_COMMUNITY_GOODS,
-        B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT,
-        EXPORT
-    }
 }

@@ -37,10 +37,10 @@ public abstract class InvoiceLine {
         return getInvoiceLineVatType() == InvoiceLineVatType.INCLUDING_VAT ? getLineAmount() : BigDecimal.ZERO;
     }
 
-    public VatAmountSummary getVatAmount(IsoCountryCode destinationCountry, Boolean consumerInvoice) {
+    public VatAmountSummary getVatAmount(String originCountry, String destinationCountry, Boolean consumerInvoice) {
         return vatRepository
                 .findByTariffAndDate(
-                        invoiceImpl.invoiceVatRegimeDelegate.getVatDeclarationCountry(),
+                        invoiceImpl.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(originCountry, destinationCountry),
                         getVatTariff(),
                         getVatReferenceDate())
                 .createVatAmountInfo(

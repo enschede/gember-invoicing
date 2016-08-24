@@ -1,4 +1,4 @@
-Consumenten klant zonder geldig BTW nr
+Consument of zakelijke klant zonder geldig BTW nr
 A1      Van EU land A (waarin BTW registratie)
 A1.1        Naar EU land A
 A1.1.1          Standaard factuur
@@ -14,48 +14,42 @@ A1.3        Naar EU land B (waarin geen BTW registratie)
 A1.4        Export
                                                 ---> BTW land A
 A2      Van EU land A (waarin geen BTW registratie)
+A2.1        Naar EU land B
+                                                ---> Fout
+A2.2        Export
                                                 ---> Fout
 
-Zakelijke klant zonder geldig BTW nr
+A3      Deel 2 van ABC-transactie
+A3.1        Van EU land B naar EU land (waarin BTW registratie)
+                                                ---> BTW land B
+
+Klant met geldig BTW nr
 B1      Van EU land A (waarin BTW registratie)
 B1.1        Naar EU land A
 B1.1.1          Standaard factuur
-                                                ---> BTW land A
+                                                ---> BTW standaard
 B1.1.2          Met regels met 'BTW Verlegd'
                                                 ---> BTW verlegd
 B1.1.3          Met merge artikelen
                                                 --->
-B1.2        Naar EU land B (waarin BTW registratie)
-                                                ---> BTW land B
-B1.3        Naar EU land B (waarin geen BTW registratie)
-                                                ---> BTW land A
-B1.4        Export
-                                                ---> BTW land A
-B2      Van EU land A (waarin geen BTW registratie)
-                                                ---> Fout
-
-Klant met geldig BTW nr
-    Van EU land A (waarin BTW registratie)
-        Naar EU land A
-            Standaard factuur
-                            ---> BTW standaard
-            Met regels met 'BTW Verlegd'
-                            ---> BTW verlegd
-            Met merge artikelen
-                            --->
-        Naar EU land B (waarin BTW registratie)
-            Goederen
+B2      Naar EU land B (waarin BTW registratie)
+B2.1        Goederen
                             ---> BTW 0% & Intrastat aangifte
-            Diensten
+B2.2        Diensten
                             ---> BTW Verlegd
-        Naar EU land B (waarin geen BTW registratie)
-            Goederen
+B2.3        Electronische diensten
+                            ---> BTW land B
+B3      Naar EU land B (waarin geen BTW registratie)
+B3.1        Goederen
                             ---> BTW 0%
-            Diensten
+B3.2        Diensten
                             ---> BTW Verlegd
-        Export
+B3.3        Electronische diensten
+                            ---> Fout
+B4      Export
+B4.1        Van EU land A (waarin BTW registratie)
                             ---> BTW land A
-    Van EU land A (waarin geen BTW registratie)
+B4.2        Van EU land A (waarin geen BTW registratie)
                             ---> Fout
 
 ABC leveringen

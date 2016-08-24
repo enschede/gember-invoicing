@@ -7,13 +7,13 @@ import java.time.LocalDate;
 
 public class VatPercentage {
 
-    IsoCountryCode isoCountryCode;
+    String isoCountryCode;
     VatTariff vatTariff;
     LocalDate startDate;
     LocalDate endDate;
     BigDecimal percentage;
 
-    public VatPercentage(IsoCountryCode isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
+    public VatPercentage(String isoCountryCode, VatTariff vatTariff, LocalDate startDate, LocalDate endDate, BigDecimal percentage) {
         this.isoCountryCode = isoCountryCode;
         this.vatTariff = vatTariff;
         this.startDate = startDate;
@@ -62,7 +62,7 @@ public class VatPercentage {
                                 RoundingMode.HALF_EVEN);
     }
 
-    public IsoCountryCode getIsoCountryCode() {
+    public String getIsoCountryCode() {
         return isoCountryCode;
     }
 

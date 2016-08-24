@@ -1,6 +1,7 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.*;
+import app.domain.invoice.internal.countries.Country;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -11,11 +12,13 @@ public class InvoiceImpl implements Invoice {
     // These attributes are protected as delegates inspect them on attribute base, not on get-method base
     public final InvoiceVatRegimeDelegate invoiceVatRegimeDelegate = new InvoiceVatRegimeDelegate(this);
     protected Company company;
+    protected Customer customer;
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
-    protected Optional<IsoCountryCode> countryOfOrigin;
-    protected Optional<IsoCountryCode> countryOfDestination;
-    protected boolean vatShifted;
+    protected Optional<String> countryOfOrigin = Optional.empty();
+    protected Optional<String> countryOfDestination = Optional.empty();
     protected InvoiceType invoiceType;
+    protected Boolean vatShifted;
+    protected Optional<ProductCategory> productCategory = Optional.empty();
 
     // -- New --
 
@@ -31,22 +34,22 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
-    public Optional<IsoCountryCode> getProductOriginCountry() {
+    public Optional<String> getProductOriginCountry() {
         return countryOfOrigin;
     }
 
     @Override
-    public void setProductOriginCountry(Optional<IsoCountryCode> productOrigin) {
+    public void setProductOriginCountry(Optional<String> productOrigin) {
         this.countryOfOrigin = productOrigin;
     }
 
     @Override
-    public Optional<IsoCountryCode> getProductDestinationCountry() {
+    public Optional<String> getProductDestinationCountry() {
         return countryOfDestination;
     }
 
     @Override
-    public void setProductDestinationCountry(Optional<IsoCountryCode> productDestination) {
+    public void setProductDestinationCountry(Optional<String> productDestination) {
         this.countryOfDestination = productDestination;
     }
 
@@ -57,7 +60,7 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public void setCustomer(Customer customer) {
-
+        this.customer = customer;
     }
 
     @Override
@@ -67,26 +70,25 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Customer getCustomer() {
+        return customer;
+    }
+
+    @Override
+    public VatCalculationRegime getInternationalTaxRuleType() {
         return null;
     }
 
     @Override
-    public InvoiceVatRegimeDelegate.InternationalTaxRuleType getInternationalTaxRuleType() {
-        return null;
-    }
-
-
-    // --- Old ---
-
-    @Override
-    public boolean isVatShifted() {
-        return vatShifted;
-    }
-
-    @Override
-    public void setVatShifted(boolean vatShifted) {
+    public void setVatShifted(Boolean vatShifted) {
         this.vatShifted = vatShifted;
     }
+
+    @Override
+    public void setProductCategory(Optional<ProductCategory> productCategory) {
+        this.productCategory = productCategory;
+    }
+
+    // --- Old ---
 
     @Override
     public List<InvoiceLine> getInvoiceLines() {
@@ -100,10 +102,11 @@ public class InvoiceImpl implements Invoice {
 
     // --- Virtual data ---
 
-    public BigDecimal getInvoiceTotalInclVat() {
+    public BigDecimal getInvoiceTotalInclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException {
 
         final VatRepository vatRepository = new VatRepository();
-        final IsoCountryCode destinationCountry = invoiceVatRegimeDelegate.getVatDeclarationCountry();
+        final String destinationCountry =
+                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
 
@@ -121,10 +124,11 @@ public class InvoiceImpl implements Invoice {
         }
     }
 
-    public BigDecimal getInvoiceTotalExclVat() {
+    public BigDecimal getInvoiceTotalExclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException {
 
         final VatRepository vatRepository = new VatRepository();
-        final IsoCountryCode destinationCountry = invoiceVatRegimeDelegate.getVatDeclarationCountry();
+        final String destinationCountry =
+                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
 
@@ -150,12 +154,12 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-        final InvoiceVatRegimeDelegate.InternationalTaxRuleType internationalTaxRuleType =
-                invoiceVatRegimeDelegate.getInternationalTaxRuleType();
+        final VatCalculationRegime internationalTaxRuleType =
+                invoiceVatRegimeDelegate.getInternationalTaxRuleType(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
         final VatRepository vatRepository = new VatRepository();
 
-        if (internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_EU_INTRA_COMMUNITY_SHIFTED_VAT
-                || internationalTaxRuleType == InvoiceVatRegimeDelegate.InternationalTaxRuleType.B2B_NATIONAL_SHIFTED_VAT) {
+        if (internationalTaxRuleType == VatCalculationRegime.B2B_EU_SERVICES
+                || internationalTaxRuleType == VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT) {
             return new HashMap<>();
         }
 
@@ -163,7 +167,7 @@ public class InvoiceImpl implements Invoice {
                 invoiceLines.stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> vatRepository.findByTariffAndDate(
-                                        invoiceVatRegimeDelegate.getVatDeclarationCountry(),
+                                        invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault()),
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
 
@@ -198,7 +202,7 @@ public class InvoiceImpl implements Invoice {
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(getProductDestinationCountry().get(), getInvoiceType() == InvoiceType.CONSUMER))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(getOriginCountryOfDefault(), getDestinationCountryOfDefault(), getInvoiceType() == InvoiceType.CONSUMER))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }
@@ -208,4 +212,11 @@ public class InvoiceImpl implements Invoice {
         return company.getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
     }
 
+    private String getOriginCountryOfDefault() {
+        return countryOfOrigin.orElse(company.getPrimaryCountryIso());
+    }
+
+    private String getDestinationCountryOfDefault() {
+        return countryOfDestination.orElse(company.getPrimaryCountryIso());
+    }
 }

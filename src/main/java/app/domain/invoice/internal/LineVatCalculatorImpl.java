@@ -11,9 +11,9 @@ import java.math.BigDecimal;
 public class LineVatCalculatorImpl implements LineVatCalculator {
 
     final VatRepository vatRepository;
-    final IsoCountryCode destinationCountry;
+    final String destinationCountry;
 
-    public LineVatCalculatorImpl(VatRepository vatRepository, IsoCountryCode destinationCountry) {
+    public LineVatCalculatorImpl(VatRepository vatRepository, String destinationCountry) {
         this.vatRepository = vatRepository;
         this.destinationCountry = destinationCountry;
     }

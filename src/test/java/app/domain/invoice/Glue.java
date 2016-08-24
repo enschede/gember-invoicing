@@ -1,8 +1,9 @@
 package app.domain.invoice;
 
 import app.domain.invoice.internal.InvoiceImpl;
-import app.domain.invoice.internal.IsoCountryCode;
+import app.domain.invoice.internal.ProductCategory;
 import app.domain.invoice.internal.VatTariff;
+import app.domain.invoice.internal.countries.CountryRepository;
 import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -17,20 +18,24 @@ import java.util.*;
 
 public class Glue {
 
+    private CountryRepository countryRepository;
+
     private final List<InvoiceLine> invoiceLines = new ArrayList<InvoiceLine>();
-    private Optional<IsoCountryCode> productOrigin = Optional.empty();
-    private Optional<IsoCountryCode> productDestination = Optional.empty();
+    private Optional<String> productOrigin = Optional.empty();
+    private Optional<String> productDestination = Optional.empty();
+    private Optional<ProductCategory> productCategory = Optional.empty();
+    private Optional<Boolean> vatShifted = Optional.empty();
 
     private Company company;
     private Customer customer;
     private Invoice invoice;
 
     @Given("^A company in \"([^\"]*)\" with vat calculation policy is \"([^\"]*)\"$")
-    public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String companyCountry,
+    public void a_company_with_VAT_id_in_and_vat_calculation_policy_is(final String primaryCountry,
                                                                        final String vatPolicy) throws Throwable {
 
         company = new Company() {
-            private Map<IsoCountryCode, String> vatRegistrations = new HashMap<>();
+            private Map<String, String> vatRegistrations = new HashMap<>();
 
             @Override
             public VatCalculationPolicy getVatCalculationPolicy() {
@@ -38,18 +43,18 @@ public class Glue {
             }
 
             @Override
-            public IsoCountryCode getDefaultVatCountry() {
-                return new IsoCountryCode(companyCountry);
+            public String getPrimaryCountryIso() {
+                return primaryCountry;
             }
 
             @Override
-            public Map<IsoCountryCode, String> getVatRegistrations() {
+            public Map<String, String> getVatRegistrations() {
                 return vatRegistrations;
             }
 
             @Override
-            public boolean hasVatRegistrationFor(IsoCountryCode countryOfDestination) {
-                return vatRegistrations.containsKey(countryOfDestination);
+            public boolean hasVatRegistrationFor(String isoOfcountryOfDestination) {
+                return vatRegistrations.containsKey(isoOfcountryOfDestination);
             }
         };
 
@@ -58,10 +63,7 @@ public class Glue {
     @Given("^the company has VAT id \"([^\"]*)\" in \"([^\"]*)\"$")
     public void the_company_has_VAT_id_in(String vatId, String companyCountry) throws Throwable {
 
-        if(company==null)
-            throw new PendingException();
-
-        company.getVatRegistrations().put(new IsoCountryCode(companyCountry), vatId);
+        company.getVatRegistrations().put(companyCountry, vatId);
     }
 
     @Given("^A customer without a validated VAT id$")
@@ -141,18 +143,29 @@ public class Glue {
     @Given("^Country of origin is \"([^\"]*)\"$")
     public void country_of_origin_is(String countryCode) throws Throwable {
 
-        productOrigin = Optional.of(new IsoCountryCode(countryCode));
+        productOrigin = Optional.of(countryCode);
     }
 
     @Given("^Country of destination is \"([^\"]*)\"$")
     public void country_of_destination_is(String countryCode) throws Throwable {
 
-        productDestination = Optional.of(new IsoCountryCode(countryCode));
+        productDestination = Optional.of(countryCode);
     }
 
-    @When("^A \"([^\"]*)\" invoice with vat shifted equals \"([^\"]*)\" is created at \"([^\"]*)\"$")
-    public void a_invoice_with_vat_shifted_equals_is_created_at(String invoiceTypeVal, String vatShifted, String invoiceDate) throws Throwable {
+    @Given("^The product category is \"([^\"]*)\"$")
+    public void the_product_category_is(String productCategory) throws Throwable {
 
+        this.productCategory = Optional.of(ProductCategory.valueOf(productCategory));
+    }
+
+    @Given("^Vat is shifted$")
+    public void vat_is_shifted() throws Throwable {
+
+        this.vatShifted = Optional.of(true);
+    }
+
+    @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
+    public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
 
         Invoice invoice = new InvoiceImpl();
@@ -161,7 +174,8 @@ public class Glue {
         invoice.setInvoiceType(invoiceType);
         invoice.setProductOriginCountry(productOrigin);
         invoice.setProductDestinationCountry(productDestination);
-        invoice.setVatShifted(Boolean.valueOf(vatShifted.toUpperCase()));
+        invoice.setProductCategory(productCategory);
+        invoice.setVatShifted(vatShifted.orElse(false));
         invoice.setInvoiceLines(invoiceLines);
 
         invoiceLines.forEach(invoiceLine -> invoiceLine.setInvoiceImpl((InvoiceImpl)invoice));
@@ -238,6 +252,18 @@ public class Glue {
         }
 
         Assert.fail();
+    }
+
+    @Then("^The vat shifted indicator is \"([^\"]*)\"$")
+    public void the_vat_shifted_indicator_is(String arg1) throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
+    }
+
+    @Then("^The VAT amount for percentage \"([^\"]*)\" is not available$")
+    public void the_VAT_amount_for_percentage_is_not_available(String arg1) throws Throwable {
+        // Write code here that turns the phrase above into concrete actions
+        throw new PendingException();
     }
 
 }
