@@ -8,27 +8,27 @@ public enum EuCountry {
     LU, // Luxembourg
     NL, // The Netherlands
     DE, // Germany
-    DK, // Denemarken
+    DK, // Denmark
     IE, // Ireland
-    GB, // VerenigdKoninkrijk"
+    GB, // United Kingdom of Great Britain and Northern Ireland
     GR, // Greece
     PT, // Portugal
     ES, // Spain
     FI, // Finland
-    AT, // Oostenrijk
+    AT, // Austria
     SE, // Sweden
     CY, // Cyprus
-    EE, // Estland"
-    HU, // Hongarije
-    LV, // Letland
-    LT, // Litouwen
+    EE, // Astonia
+    HU, // Hungary
+    LV, // Latvia
+    LT, // Lithuania
     MT, // Malta
-    PL, // Polen
-    SI, // Slovenie
-    SK, // Slowakije
-    CZ, // Tsjechie
-    BG, // Bulgarije
-    RO, // Roemenie
-    HR  // Kroatie
+    PL, // Poland
+    SI, // Slovenia
+    SK, // Slovakia
+    CZ, // Czech Republic
+    BG, // Bulgaria
+    RO, // Romania
+    HR  // Croatia
 
 }
