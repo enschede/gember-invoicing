@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 
 public class Glue {
 
@@ -187,7 +188,7 @@ public class Glue {
     public void the_total_amount_including_VAT_is(String expectedTotalAmountIncludingVat) throws Throwable {
         assert invoice != null;
 
-        BigDecimal invoiceTotalInclVat = invoice.getInvoiceTotalInclVat();
+        BigDecimal invoiceTotalInclVat = invoice.getTotalInvoiceAmountInclVat();
 
         Assert.assertThat(invoiceTotalInclVat, Matchers.is(new BigDecimal(expectedTotalAmountIncludingVat)));
     }
@@ -196,14 +197,16 @@ public class Glue {
     public void the_total_amount_excluding_VAT_is(String expectedTotalAmountExclVat) throws Throwable {
         assert invoice != null;
 
-        Assert.assertThat(invoice.getInvoiceTotalExclVat(), Matchers.is(new BigDecimal(expectedTotalAmountExclVat)));
+        Assert.assertThat(invoice.getTotalInvoiceAmountExclVat(), Matchers.is(new BigDecimal(expectedTotalAmountExclVat)));
     }
 
     @Then("^The total amount VAT is \"([^\"]*)\"$")
     public void the_total_amount_VAT_is(String expectedTotalAmountVat) throws Throwable {
         assert invoice != null;
 
-        Assert.assertThat(invoice.getInvoiceTotalVat(), Matchers.is(new BigDecimal(expectedTotalAmountVat)));
+        BigDecimal invoiceTotalVat = invoice.getInvoiceTotalVat();
+
+        Assert.assertThat(invoiceTotalVat, Matchers.is(new BigDecimal(expectedTotalAmountVat)));
     }
 
     @Then("^The VAT amount for percentage \"([^\"]*)\" is \"([^\"]*)\"$")
@@ -224,8 +227,10 @@ public class Glue {
     public void the_total_amount_including_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
 
         try {
-            invoice.getInvoiceTotalInclVat();
-        } catch (InvoiceCalculationException e) {
+            invoice.getInvoiceSubTotalInclVat();
+        } catch (NoRegistrationInDestinationCountryException nre) {
+            return;
+        } catch (OriginIsNotEuCountryException oe) {
             return;
         }
 
@@ -235,8 +240,10 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an invoice calculation exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalInclVat();
-        } catch (InvoiceCalculationException e) {
+            invoice.getInvoiceSubTotalInclVat();
+        } catch (NoRegistrationInDestinationCountryException nre) {
+            return;
+        } catch (OriginIsNotEuCountryException oe) {
             return;
         }
 
@@ -246,8 +253,10 @@ public class Glue {
     @Then("^The total amount VAT request throws an invoice calculation exception$")
     public void the_total_amount_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
         try {
-            invoice.getInvoiceTotalInclVat();
-        } catch (InvoiceCalculationException e) {
+            invoice.getInvoiceSubTotalInclVat();
+        } catch (NoRegistrationInDestinationCountryException nre) {
+            return;
+        } catch (OriginIsNotEuCountryException oe) {
             return;
         }
 
@@ -255,15 +264,23 @@ public class Glue {
     }
 
     @Then("^The vat shifted indicator is \"([^\"]*)\"$")
-    public void the_vat_shifted_indicator_is(String arg1) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    public void the_vat_shifted_indicator_is(String shifted_indicator) throws Throwable {
+
+        Assert.assertThat(invoice.isShiftedVat(), Matchers.is(Boolean.valueOf(shifted_indicator)));
     }
 
     @Then("^The VAT amount for percentage \"([^\"]*)\" is not available$")
-    public void the_VAT_amount_for_percentage_is_not_available(String arg1) throws Throwable {
-        // Write code here that turns the phrase above into concrete actions
-        throw new PendingException();
+    public void the_VAT_amount_for_percentage_is_not_available(String percentage) throws Throwable {
+
+        assert invoice != null;
+
+        Optional<BigDecimal> actualAmount =
+                invoice.getVatPerVatTariff().entrySet().stream()
+                        .filter(entry -> entry.getKey().getPercentage().equals(new BigDecimal(percentage)))
+                        .map(entry -> entry.getValue().getAmountVat())
+                        .findFirst();
+
+        Assert.assertThat(actualAmount.isPresent(), Matchers.is(false));
     }
 
 }

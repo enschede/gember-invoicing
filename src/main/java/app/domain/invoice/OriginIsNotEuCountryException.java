@@ -1,6 +1,7 @@
-package app.domain.invoice.internal;
+package app.domain.invoice;
 
-public class OriginIsNotEuCountryException extends Throwable {
+public class OriginIsNotEuCountryException extends RuntimeException {
+
     public OriginIsNotEuCountryException(String originCountryIso) {
         super(originCountryIso);
     }

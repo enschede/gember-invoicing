@@ -1,7 +1,5 @@
 package app.domain.invoice.internal.countries;
 
-import app.domain.invoice.internal.EuCountry;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;

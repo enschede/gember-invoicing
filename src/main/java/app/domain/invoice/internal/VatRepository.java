@@ -1,5 +1,7 @@
 package app.domain.invoice.internal;
 
+import app.domain.invoice.VatPercentageNotFoundException;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ public class VatRepository {
     }
 
     public VatPercentage findByTariffAndDate(String destinationCountry, VatTariff vatTariff, LocalDate referenceDate) {
+
         Optional<VatPercentage> vatPercentage = percentages.stream()
                 .filter(vatPercentage1 -> vatPercentage1.isoCountryCode.equals(destinationCountry)
                         && vatPercentage1.vatTariff == vatTariff

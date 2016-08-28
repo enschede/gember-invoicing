@@ -44,7 +44,7 @@ Feature: Delivering to a business customer in the EU
     And Country of origin is "<origin>"
     And Country of destination is "<destination>"
     And Vat is shifted
-    When A "business" invoice with vat shifted equals "true" is created at "2016-01-01"
+    When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT is "<totalAmountInclVat>"
     And The total amount excluding VAT is "<totalAmountExVat>"
     And The total amount VAT is "<totalAmountVat>"
@@ -84,7 +84,7 @@ Feature: Delivering to a business customer in the EU
   # B2.2
   # Diensten vanuit primaire of secundare EU land, naar 3e EU land (verlegd)
   # A company with registration in the main country delivers services to a business partner in EU with a tax id
-  Scenario Outline: A company with registration in the main country delivers goods to a business partner in EU with a tax id
+  Scenario Outline: A company with registration in the main country delivers services to a business partner in EU with a tax id
     Given the company has VAT id "BE12345" in "BE"
     And A customer has VAT id "DE56789" in "DE"
     And Country of origin is "<origin>"

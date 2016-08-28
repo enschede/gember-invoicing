@@ -21,10 +21,10 @@ Feature: As a salesman I want to send an invoice for goods or services delivered
     And The VAT amount for percentage "<vatPercentage>" is "<amountVat>"
 
     Examples:
-      | case | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
-      | A    | NL     | NL          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
-      | B    | NL     | NL          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
-      | C    | NL     | NL          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
+      | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 21.00         | 21.00     |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 6.00          | 6.00      |
+      | NL     | NL          | 327.00             | 300.00           | 27.00          | 0.00          | 0.00      |
 
   # A1.2
   Scenario Outline: A company with registration in it's main country delivers goods to another EU country where it has a registration
@@ -162,4 +162,21 @@ Feature: As a salesman I want to send an invoice for goods or services delivered
       | DE     | DE          | 327.00             | 300.75           | 26.25          | 19.00         | 19.32     |
       | DE     | DE          | 327.00             | 300.75           | 26.25          | 7.00          | 6.93      |
       | DE     | DE          | 327.00             | 300.75           | 26.25          | 0.00          | 0.00      |
+
+  # A4.1
+  #
+  Scenario Outline: A company registered in EU delivers goods from outside the EU will result in an exception
+    Given the company has VAT id "DE12345" in "DE"
+    And Country of origin is "TR"
+    And Country of destination is "DE"
+    When A "consumer" invoice is created at "2016-01-01"
+    Then The total amount including VAT request throws an invoice calculation exception
+    Then The total amount excluding VAT request throws an invoice calculation exception
+    Then The total amount VAT request throws an invoice calculation exception
+
+    Examples:
+      | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+      | 327.00             | 300.75           | 26.25          | 19.00         | 19.32     |
+      | 327.00             | 300.75           | 26.25          | 7.00          | 6.93      |
+      | 327.00             | 300.75           | 26.25          | 0.00          | 0.00      |
 

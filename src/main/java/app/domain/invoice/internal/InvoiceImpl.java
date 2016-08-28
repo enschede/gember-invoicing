@@ -1,9 +1,9 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.*;
-import app.domain.invoice.internal.countries.Country;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +88,12 @@ public class InvoiceImpl implements Invoice {
         this.productCategory = productCategory;
     }
 
-    // --- Old ---
+    @Override
+    public Boolean isShiftedVat() {
+        return invoiceVatRegimeDelegate.getCalculationMethod() == CalculationMethod.SHIFTED_VAT;
+    }
+
+// --- Old ---
 
     @Override
     public List<InvoiceLine> getInvoiceLines() {
@@ -102,45 +107,93 @@ public class InvoiceImpl implements Invoice {
 
     // --- Virtual data ---
 
-    public BigDecimal getInvoiceTotalInclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException {
+    @Override
+    public BigDecimal getInvoiceSubTotalInclVat() {
 
         final VatRepository vatRepository = new VatRepository();
-        final String destinationCountry =
-                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
+        final String declarationCountryIso =
+                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
+                        invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
+                        invoiceVatRegimeDelegate.getDestinationCountryOfDefault());
 
-        LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
+        LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, declarationCountryIso);
 
-        if(this.getInvoiceType()==InvoiceType.CONSUMER) {
+        if (this.invoiceVatRegimeDelegate.getCalculationMethod() == CalculationMethod.INCLUDING_VAT) {
             BigDecimal totalAmountInclVat = invoiceLines.stream()
                     .map(invoiceLine -> lineVatCalculator.getLineAmountInclVat(invoiceLine))
                     .reduce(new BigDecimal("0.00"), BigDecimal::add);
 
             return totalAmountInclVat;
         } else {
-            BigDecimal invoiceTotalExclVat = getInvoiceTotalExclVat();
-            BigDecimal invoiceTotalVat = getInvoiceTotalVat();
-
-            return invoiceTotalExclVat.add(invoiceTotalVat);
+            return null;
         }
     }
 
-    public BigDecimal getInvoiceTotalExclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException {
+    @Override
+    public BigDecimal getInvoiceSubTotalExclVat() {
 
         final VatRepository vatRepository = new VatRepository();
         final String destinationCountry =
-                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
+                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
+                        invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
+                        invoiceVatRegimeDelegate.getDestinationCountryOfDefault());
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
 
-        if(this.getInvoiceType()==InvoiceType.CONSUMER) {
-            return getInvoiceTotalInclVat().subtract(getInvoiceTotalVat());
-        } else {
+        CalculationMethod calculationMethod = this.invoiceVatRegimeDelegate.getCalculationMethod();
+
+        if (calculationMethod == CalculationMethod.EXCLUDING_VAT ||
+                calculationMethod == CalculationMethod.SHIFTED_VAT ||
+                calculationMethod == CalculationMethod.INTRA_CUMM_B2B) {
+
             BigDecimal totalAmountExclVat = invoiceLines.stream()
                     .map(invoiceLine -> lineVatCalculator.getLineAmountExclVat(invoiceLine))
                     .reduce(new BigDecimal("0.00"), BigDecimal::add);
 
             return totalAmountExclVat;
+        } else {
+            return null;
         }
+    }
+
+    @Override
+    public BigDecimal getTotalInvoiceAmountInclVat() {
+
+        switch (this.invoiceVatRegimeDelegate.getCalculationMethod()) {
+
+            case INCLUDING_VAT:
+                return getInvoiceSubTotalInclVat();
+
+            case EXCLUDING_VAT:
+                return getInvoiceSubTotalExclVat().add(getInvoiceTotalVat());
+
+            case SHIFTED_VAT:
+            case INTRA_CUMM_B2B:
+                return getInvoiceSubTotalExclVat();
+
+            default:
+                return null;
+        }
+
+    }
+
+    @Override
+    public BigDecimal getTotalInvoiceAmountExclVat() {
+
+        switch (this.invoiceVatRegimeDelegate.getCalculationMethod()) {
+
+            case INCLUDING_VAT:
+                return getInvoiceSubTotalInclVat().subtract(getInvoiceTotalVat());
+
+            case EXCLUDING_VAT:
+            case SHIFTED_VAT:
+            case INTRA_CUMM_B2B:
+                return getInvoiceSubTotalExclVat();
+
+            default:
+                return null;
+        }
+
     }
 
     @Override
@@ -154,29 +207,59 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
-        final VatCalculationRegime internationalTaxRuleType =
-                invoiceVatRegimeDelegate.getInternationalTaxRuleType(getOriginCountryOfDefault(), getDestinationCountryOfDefault());
+        final VatCalculationRegime vatCalculationRegime =
+                invoiceVatRegimeDelegate.getVatCalculationRegime();
+
         final VatRepository vatRepository = new VatRepository();
 
-        if (internationalTaxRuleType == VatCalculationRegime.B2B_EU_SERVICES
-                || internationalTaxRuleType == VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT) {
-            return new HashMap<>();
+        switch (vatCalculationRegime) {
+            case CONSUMER:
+            case B2B_NATIONAL:
+            case EXPORT:
+                Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
+                        invoiceLines.stream()
+                                .collect(Collectors.groupingBy(
+                                        invoiceLine -> vatRepository.findByTariffAndDate(
+                                                invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
+                                                        invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
+                                                        invoiceVatRegimeDelegate.getDestinationCountryOfDefault()),
+                                                invoiceLine.getVatTariff(),
+                                                invoiceLine.getVatReferenceDate())));
+
+                Map<VatPercentage, VatAmountSummary> vatPercentageVatAmountSummaryMap =
+                        mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
+                                .collect(Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        optionalListEntry -> calculateVatAmountForVatTariff(
+                                                optionalListEntry.getKey(),
+                                                optionalListEntry.getValue())));
+
+                return vatPercentageVatAmountSummaryMap;
+
+            case B2B_NATIONAL_SHIFTED_VAT:
+            case B2B_EU_SERVICES:
+            case B2B_EU_E_SERVICES:
+                return new HashMap<>();
+
+            case B2B_EU_GOODS:
+                Map<VatPercentage, VatAmountSummary> vatPercentageVatAmountSummaryMap2 = new HashMap<>();
+
+                VatPercentage vatPercentage = vatRepository.findByTariffAndDate(
+                        invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
+                                invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
+                                invoiceVatRegimeDelegate.getDestinationCountryOfDefault()),
+                        VatTariff.ZERO, LocalDate.now());
+
+                        VatAmountSummary vatAmount = new VatAmountSummary(vatPercentage, new BigDecimal("0.00"), getInvoiceSubTotalExclVat(), getTotalInvoiceAmountExclVat());
+
+                vatPercentageVatAmountSummaryMap2.put(vatPercentage, vatAmount);
+
+                return vatPercentageVatAmountSummaryMap2;
+
+            default:
+                return null;
         }
 
-        Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
-                invoiceLines.stream()
-                        .collect(Collectors.groupingBy(
-                                invoiceLine -> vatRepository.findByTariffAndDate(
-                                        invoiceVatRegimeDelegate.getVatDeclarationCountryIso(getOriginCountryOfDefault(), getDestinationCountryOfDefault()),
-                                        invoiceLine.getVatTariff(),
-                                        invoiceLine.getVatReferenceDate())));
-
-        return mapOfInvoiceLinesPerVatPercentage.entrySet().stream()
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        optionalListEntry -> calculateVatAmountForVatTariff(
-                                optionalListEntry.getKey(),
-                                optionalListEntry.getValue())));
     }
 
     private VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {
@@ -202,7 +285,10 @@ public class InvoiceImpl implements Invoice {
                     totalSumInclVat);
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(getOriginCountryOfDefault(), getDestinationCountryOfDefault(), getInvoiceType() == InvoiceType.CONSUMER))
+                    .map(invoiceLine -> invoiceLine.getVatAmount(
+                            invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
+                            invoiceVatRegimeDelegate.getDestinationCountryOfDefault(),
+                            getInvoiceType() == InvoiceType.CONSUMER))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 
         }
@@ -210,13 +296,5 @@ public class InvoiceImpl implements Invoice {
 
     private boolean calculateVatOnSummaryBase() {
         return company.getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
-    }
-
-    private String getOriginCountryOfDefault() {
-        return countryOfOrigin.orElse(company.getPrimaryCountryIso());
-    }
-
-    private String getDestinationCountryOfDefault() {
-        return countryOfDestination.orElse(company.getPrimaryCountryIso());
     }
 }

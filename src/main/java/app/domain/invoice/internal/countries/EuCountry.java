@@ -1,4 +1,4 @@
-package app.domain.invoice.internal;
+package app.domain.invoice.internal.countries;
 
 public enum EuCountry {
 

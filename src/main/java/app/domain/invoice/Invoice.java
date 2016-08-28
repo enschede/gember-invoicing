@@ -15,9 +15,13 @@ public interface Invoice {
 
     void setInvoiceLines(List<InvoiceLine> invoiceLines);
 
-    public BigDecimal getInvoiceTotalInclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException;
+    public BigDecimal getInvoiceSubTotalInclVat();
 
-    public BigDecimal getInvoiceTotalExclVat() throws OriginIsNotEuCountryException, ProductCategoryNotSetException;
+    public BigDecimal getInvoiceSubTotalExclVat();
+
+    BigDecimal getTotalInvoiceAmountInclVat();
+
+    BigDecimal getTotalInvoiceAmountExclVat();
 
     public BigDecimal getInvoiceTotalVat();
 
@@ -48,4 +52,6 @@ public interface Invoice {
     void setVatShifted(Boolean aBoolean);
 
     void setProductCategory(Optional<ProductCategory> productCategory);
+
+    Boolean isShiftedVat();
 }
