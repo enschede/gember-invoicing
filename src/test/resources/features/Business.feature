@@ -81,15 +81,35 @@ Feature: Delivering to a business customer in the EU
       | NL     | DE          | 300.00             | 300.00           | 0.00           | 0.00          | 0.00      |
       | BE     | DE          | 300.00             | 300.00           | 0.00           | 0.00          | 0.00      |
 
-  # B2.2
-  # Diensten vanuit primaire of secundare EU land, naar 3e EU land (verlegd)
-  # A company with registration in the main country delivers services to a business partner in EU with a tax id
+  # B2.2.2
   Scenario Outline: A company with registration in the main country delivers services to a business partner in EU with a tax id
     Given the company has VAT id "BE12345" in "BE"
     And A customer has VAT id "DE56789" in "DE"
     And Country of origin is "<origin>"
     And Country of destination is "<destination>"
     And The product category is "Services"
+    And Vat is shifted
+    When A "business" invoice is created at "2016-01-01"
+    Then The total amount including VAT is "<totalAmountInclVat>"
+    And The total amount excluding VAT is "<totalAmountExVat>"
+    And The total amount VAT is "0.00"
+    And The VAT amount for percentage "<0.00>" is not available
+    And The vat shifted indicator is "true"
+
+    Examples:
+      | origin | destination | totalAmountInclVat | totalAmountExVat |
+      | NL     | DE          | 300.00             | 300.00           |
+      | BE     | DE          | 300.00             | 300.00           |
+
+  # B2.2.2
+  #  Waar BTW heffen als geen BTW verlegd toegepast mag worden?
+  Scenario Outline: A company with registration in the main country delivers services to a business partner in EU with a tax id
+    Given the company has VAT id "BE12345" in "BE"
+    And A customer has VAT id "DE56789" in "DE"
+    And Country of origin is "<origin>"
+    And Country of destination is "<destination>"
+    And The product category is "Services"
+    And Vat is not shifted
     When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT is "<totalAmountInclVat>"
     And The total amount excluding VAT is "<totalAmountExVat>"
@@ -104,32 +124,32 @@ Feature: Delivering to a business customer in the EU
 
 
   # B2.3
-  # Diensten vanuit primaire of secundare EU land, naar 3e EU land (BTW 3e land)
-  # A company with registration in the main country delivers e-services to a business partner in EU with a tax id
-  Scenario Outline: A company with registration in the main country delivers goods to a business partner in EU with a tax id
-    Given the company has VAT id "BE12345" in "BE"
-    And A customer has VAT id "DE56789" in "DE"
-    And Country of origin is "<origin>"
-    And Country of destination is "<destination>"
-    And The product category is "EServices"
-    When A "business" invoice is created at "2016-01-01"
-    Then The total amount including VAT is "<totalAmountInclVat>"
-    And The total amount excluding VAT is "<totalAmountExVat>"
-    And The total amount VAT is "<totalAmountVat>"
-    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>"
-    And The vat shifted indicator is "false"
-
-    Examples:
-      | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
-      | NL     | DE          | 300.00             | 319.00           | 19.00          | 19.00         | 19.00     |
-      | BE     | DE          | 300.00             | 319.00           | 19.00          | 19.00         | 19.00     |
+    # Wat is bijzonder aan deze regeling?
+#  Scenario Outline: A company with registration in the main country delivers goods to a business partner in EU with a tax id
+#    Given the company has VAT id "BE12345" in "BE"
+#    And A customer has VAT id "DE56789" in "DE"
+#    And Country of origin is "<origin>"
+#    And Country of destination is "<destination>"
+#    And The product category is "EServices"
+#    When A "business" invoice is created at "2016-01-01"
+#    Then The total amount including VAT is "<totalAmountInclVat>"
+#    And The total amount excluding VAT is "<totalAmountExVat>"
+#    And The total amount VAT is "<totalAmountVat>"
+#    And The VAT amount for percentage "<vatPercentage>" is "<amountVat>"
+#    And The vat shifted indicator is "false"
+#
+#    Examples:
+#      | origin | destination | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
+#      | NL     | DE          | 300.00             | 319.00           | 19.00          | 19.00         | 19.00     |
+#      | BE     | DE          | 300.00             | 319.00           | 19.00          | 19.00         | 19.00     |
 
 
   # B3.1
   # Goederen vanuit secundare EU land (zonder reg.), naar 3e EU land (exception)
-  Scenario: A company with registration in the main country delivers goods to a business partner in EU with a tax id
+  Scenario: 3.1 A company with registration in the main country delivers goods to a business partner in EU with a tax id
     Given Country of origin is "BE"
     And Country of destination is "DE"
+    And A customer has VAT id "DE56789" in "DE"
     And The product category is "Goods"
     When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT request throws an invoice calculation exception
@@ -142,6 +162,7 @@ Feature: Delivering to a business customer in the EU
     Given Country of origin is "BE"
     And Country of destination is "DE"
     And The product category is "Services"
+    And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT request throws an invoice calculation exception
     Then The total amount excluding VAT request throws an invoice calculation exception
@@ -153,6 +174,7 @@ Feature: Delivering to a business customer in the EU
     Given Country of origin is "BE"
     And Country of destination is "DE"
     And The product category is "EServices"
+    And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT request throws an invoice calculation exception
     Then The total amount excluding VAT request throws an invoice calculation exception
@@ -167,6 +189,7 @@ Feature: Delivering to a business customer in the EU
     Given Country of origin is "BE"
     And Country of destination is "DE"
     And The product category is "EServices"
+    And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
     Then The total amount including VAT request throws an invoice calculation exception
     Then The total amount excluding VAT request throws an invoice calculation exception

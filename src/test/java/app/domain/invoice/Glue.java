@@ -1,6 +1,7 @@
 package app.domain.invoice;
 
 import app.domain.invoice.internal.InvoiceImpl;
+import app.domain.invoice.internal.NoRegistrationInOriginCountryException;
 import app.domain.invoice.internal.ProductCategory;
 import app.domain.invoice.internal.VatTariff;
 import app.domain.invoice.internal.countries.CountryRepository;
@@ -165,6 +166,12 @@ public class Glue {
         this.vatShifted = Optional.of(true);
     }
 
+    @Given("^Vat is not shifted$")
+    public void vat_is_not_shifted() throws Throwable {
+
+        this.vatShifted = Optional.of(false);
+    }
+
     @When("^A \"([^\"]*)\" invoice is created at \"([^\"]*)\"$")
     public void a_invoice_is_created_at(String invoiceTypeVal, String invoiceDate) throws Throwable {
         InvoiceType invoiceType = InvoiceType.valueOf(invoiceTypeVal.toUpperCase());
@@ -227,10 +234,12 @@ public class Glue {
     public void the_total_amount_including_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
 
         try {
-            invoice.getInvoiceSubTotalInclVat();
+            invoice.getTotalInvoiceAmountInclVat();
         } catch (NoRegistrationInDestinationCountryException nre) {
             return;
         } catch (OriginIsNotEuCountryException oe) {
+            return;
+        } catch (NoRegistrationInOriginCountryException nroc) {
             return;
         }
 
@@ -240,10 +249,12 @@ public class Glue {
     @Then("^The total amount excluding VAT request throws an invoice calculation exception$")
     public void the_total_amount_excluding_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
         try {
-            invoice.getInvoiceSubTotalInclVat();
+            invoice.getInvoiceSubTotalExclVat();
         } catch (NoRegistrationInDestinationCountryException nre) {
             return;
         } catch (OriginIsNotEuCountryException oe) {
+            return;
+        } catch (NoRegistrationInOriginCountryException nroc) {
             return;
         }
 
@@ -253,10 +264,12 @@ public class Glue {
     @Then("^The total amount VAT request throws an invoice calculation exception$")
     public void the_total_amount_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
         try {
-            invoice.getInvoiceSubTotalInclVat();
+            invoice.getInvoiceTotalVat();
         } catch (NoRegistrationInDestinationCountryException nre) {
             return;
         } catch (OriginIsNotEuCountryException oe) {
+            return;
+        } catch (NoRegistrationInOriginCountryException nroc) {
             return;
         }
 

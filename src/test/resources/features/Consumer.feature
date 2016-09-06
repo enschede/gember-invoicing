@@ -1,5 +1,4 @@
 Feature: As a salesman I want to send an invoice for goods or services delivered from my primary or a secondary EU country to a private customer in my primary country, a secondary EU country or a country outside the EU.
-
   - A private customer is defined as a customer without a valid EU VAT id.
 
   Background:

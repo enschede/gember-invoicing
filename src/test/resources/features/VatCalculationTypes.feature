@@ -14,7 +14,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
     And A customer without a validated VAT id
     And Country of origin is "NL"
     And Country of destination is "NL"
-    When A "consumer" invoice with vat shifted equals "false" is created at "2016-01-01"
+    When A "consumer" invoice is created at "2016-01-01"
     Then The total amount including VAT is "600.00"
     And The total amount excluding VAT is "495.87"
     And The total amount VAT is "104.13"
@@ -26,7 +26,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
     And A customer without a validated VAT id
     And Country of origin is "NL"
     And Country of destination is "NL"
-    When A "consumer" invoice with vat shifted equals "false" is created at "2016-01-01"
+    When A "consumer" invoice is created at "2016-01-01"
     Then The total amount including VAT is "600.00"
     And The total amount excluding VAT is "495.84"
     And The total amount VAT is "104.16"

@@ -19,10 +19,11 @@ public class InvoiceVatRegimeDelegate {
     VatCalculationRegime getVatCalculationRegime() {
 
         validateIfOriginCountryIsEuCountry();
+        validateIfCompanyHasRegistrationInOriginCountry();
 
         if (isConsumerInvoice()) {
-            if ( invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault()) )
-            return VatCalculationRegime.CONSUMER;
+            if (invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault()))
+                return VatCalculationRegime.CONSUMER;
 
             throw new NoRegistrationInDestinationCountryException();
         }
@@ -48,13 +49,19 @@ public class InvoiceVatRegimeDelegate {
         return VatCalculationRegime.EXPORT;
     }
 
+    private void validateIfCompanyHasRegistrationInOriginCountry() {
+        if(!invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault())) {
+            throw new NoRegistrationInOriginCountryException(getOriginCountryOfDefault());
+        }
+    }
+
     // Shows the EU country where the VAT should be declared
     public String getVatDeclarationCountryIso(final String originCountryIso, final String destinationCountryIso) {
 
         VatCalculationRegime vatCalculationRegime =
                 getVatCalculationRegime();
 
-        if(vatCalculationRegime.equals(VatCalculationRegime.CONSUMER) && invoiceImpl.getCompany().getVatRegistrations().containsKey(destinationCountryIso)) {
+        if (vatCalculationRegime.equals(VatCalculationRegime.CONSUMER) && invoiceImpl.getCompany().getVatRegistrations().containsKey(destinationCountryIso)) {
             return destinationCountryIso;
         }
 
@@ -94,22 +101,14 @@ public class InvoiceVatRegimeDelegate {
     }
 
 
-
-
-
-
-
-
-
-
     private void validateIfProductCategoryIsSet(Optional<ProductCategory> productCategory) {
-        if(!productCategory.isPresent())
+        if (!productCategory.isPresent())
             throw new ProductCategoryNotSetException();
     }
 
     private void validateIfOriginCountryIsEuCountry() {
 
-        if( !isEuCountry(getOriginCountryOfDefault()) )
+        if (!isEuCountry(getOriginCountryOfDefault()))
             throw new OriginIsNotEuCountryException(getOriginCountryOfDefault());
     }
 
