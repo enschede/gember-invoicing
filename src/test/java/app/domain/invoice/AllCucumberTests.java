@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
         format = {"pretty", "html:target/cucumber"},
         glue = {"app.domain.invoice"},
         features = "classpath:features/",
-        strict = false
+        strict = true
 )
 public class AllCucumberTests {
 }

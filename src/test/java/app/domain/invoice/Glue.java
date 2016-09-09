@@ -230,46 +230,106 @@ public class Glue {
         Assert.assertThat(actualAmount.get(), Matchers.is(new BigDecimal(expectedAmount)));
     }
 
-    @Then("^The total amount including VAT request throws an invoice calculation exception$")
-    public void the_total_amount_including_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+    @Then("^The total amount including VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_including_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
 
         try {
             invoice.getTotalInvoiceAmountInclVat();
-        } catch (NoRegistrationInDestinationCountryException nre) {
-            return;
-        } catch (OriginIsNotEuCountryException oe) {
-            return;
-        } catch (NoRegistrationInOriginCountryException nroc) {
+        } catch (NoRegistrationInOriginCountryException nre) {
             return;
         }
 
         Assert.fail();
     }
 
-    @Then("^The total amount excluding VAT request throws an invoice calculation exception$")
-    public void the_total_amount_excluding_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+    @Then("^The total amount excluding VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
+
         try {
             invoice.getInvoiceSubTotalExclVat();
-        } catch (NoRegistrationInDestinationCountryException nre) {
-            return;
-        } catch (OriginIsNotEuCountryException oe) {
-            return;
-        } catch (NoRegistrationInOriginCountryException nroc) {
+        } catch (NoRegistrationInOriginCountryException nre) {
             return;
         }
 
         Assert.fail();
     }
 
-    @Then("^The total amount VAT request throws an invoice calculation exception$")
-    public void the_total_amount_VAT_request_throws_an_invoice_calculation_exception() throws Throwable {
+    @Then("^The total amount VAT request throws an no registration in origin country exception$")
+    public void the_total_amount_VAT_request_throws_an_no_registration_in_origin_country_exception() throws Throwable {
+
         try {
             invoice.getInvoiceTotalVat();
-        } catch (NoRegistrationInDestinationCountryException nre) {
+        } catch (NoRegistrationInOriginCountryException nre) {
             return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount including VAT request throws an product category not set exception$")
+    public void the_total_amount_including_VAT_request_throws_an_product_category_not_set_exception() throws Throwable {
+
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
+        } catch (ProductCategoryNotSetException nre) {
+            return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an product category not set exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_product_category_not_set_exception() throws Throwable {
+
+        try {
+            invoice.getTotalInvoiceAmountExclVat();
+        } catch (ProductCategoryNotSetException nre) {
+            return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount VAT request throws an product category not set exception$")
+    public void the_total_amount_VAT_request_throws_an_product_category_not_set_exception() throws Throwable {
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (ProductCategoryNotSetException nre) {
+            return;
+        }
+
+        Assert.fail();
+    }
+    @Then("^The total amount including VAT request throws an origin is not EU country exception$")
+    public void the_total_amount_including_VAT_request_throws_an_origin_is_not_EU_country_exception() throws Throwable {
+
+        try {
+            invoice.getTotalInvoiceAmountInclVat();
         } catch (OriginIsNotEuCountryException oe) {
             return;
-        } catch (NoRegistrationInOriginCountryException nroc) {
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount excluding VAT request throws an origin is not EU country exception$")
+    public void the_total_amount_excluding_VAT_request_throws_an_origin_is_not_EU_country_exception() throws Throwable {
+
+        try {
+            invoice.getInvoiceSubTotalExclVat();
+        } catch (OriginIsNotEuCountryException oe) {
+            return;
+        }
+
+        Assert.fail();
+    }
+
+    @Then("^The total amount VAT request throws an origin is not EU country exception$")
+    public void the_total_amount_VAT_request_throws_an_origin_is_not_EU_country_exception() throws Throwable {
+
+        try {
+            invoice.getInvoiceTotalVat();
+        } catch (OriginIsNotEuCountryException oe) {
             return;
         }
 

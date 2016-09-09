@@ -123,6 +123,24 @@ Feature: Delivering to a business customer in the EU
       | BE     | DE          | 300.00             | 300.00           |
 
 
+  # B2.2.4
+  Scenario Outline: A company with registration in the main country delivers 'unknown prducts' to a business partner in EU with a tax id
+    Given the company has VAT id "BE12345" in "BE"
+    And A customer has VAT id "DE56789" in "DE"
+    And Country of origin is "<origin>"
+    And Country of destination is "<destination>"
+    And Vat is not shifted
+    When A "business" invoice is created at "2016-01-01"
+    Then The total amount including VAT request throws an product category not set exception
+    Then The total amount excluding VAT request throws an product category not set exception
+    Then The total amount VAT request throws an product category not set exception
+
+    Examples:
+      | origin | destination | totalAmountInclVat | totalAmountExVat |
+      | NL     | DE          | 300.00             | 300.00           |
+      | BE     | DE          | 300.00             | 300.00           |
+
+
   # B2.3
     # Wat is bijzonder aan deze regeling?
 #  Scenario Outline: A company with registration in the main country delivers goods to a business partner in EU with a tax id
@@ -152,9 +170,9 @@ Feature: Delivering to a business customer in the EU
     And A customer has VAT id "DE56789" in "DE"
     And The product category is "Goods"
     When A "business" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 
   # B3.2
   # Diensten vanuit secundare EU land (zonder reg.), naar 3e EU land (exception)
@@ -164,9 +182,9 @@ Feature: Delivering to a business customer in the EU
     And The product category is "Services"
     And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 
   # B3.3
   # Electronische diensten vanuit secundare EU land (zonder reg.), naar 3e EU land (exception)
@@ -176,9 +194,9 @@ Feature: Delivering to a business customer in the EU
     And The product category is "EServices"
     And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 
   # B4.1
   # Goederen vanuit secundare EU land (met reg.), naar niet-EU land (BTW land A)
@@ -191,7 +209,7 @@ Feature: Delivering to a business customer in the EU
     And The product category is "EServices"
     And A customer has VAT id "DE56789" in "DE"
     When A "business" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 

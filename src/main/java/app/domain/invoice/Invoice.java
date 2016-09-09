@@ -7,9 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Created by marc on 06/05/16.
- */
 public interface Invoice {
     List<InvoiceLine> getInvoiceLines();
 

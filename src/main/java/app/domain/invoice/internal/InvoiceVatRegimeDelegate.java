@@ -1,7 +1,6 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.InvoiceType;
-import app.domain.invoice.NoRegistrationInDestinationCountryException;
 import app.domain.invoice.OriginIsNotEuCountryException;
 import app.domain.invoice.ProductCategoryNotSetException;
 import app.domain.invoice.internal.countries.EuCountry;
@@ -25,7 +24,6 @@ public class InvoiceVatRegimeDelegate {
             if (invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault()))
                 return VatCalculationRegime.CONSUMER;
 
-            throw new NoRegistrationInDestinationCountryException();
         }
 
         if (isNationalTransaction(getOriginCountryOfDefault(), getDestinationCountryOfDefault())) {

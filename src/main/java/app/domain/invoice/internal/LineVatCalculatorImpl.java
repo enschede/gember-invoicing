@@ -5,9 +5,6 @@ import app.domain.invoice.InvoiceLineVatType;
 
 import java.math.BigDecimal;
 
-/**
- * Created by marc on 14/06/16.
- */
 public class LineVatCalculatorImpl implements LineVatCalculator {
 
     final VatRepository vatRepository;

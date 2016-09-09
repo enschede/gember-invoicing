@@ -132,18 +132,18 @@ Feature: As a salesman I want to send an invoice for goods or services delivered
     Given Country of origin is "BE"
     And Country of destination is "DE"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 
   # A2.2
   Scenario: A company exports from a EU country where it has no registration, leading to an exception
     Given Country of origin is "BE"
     And Country of destination is "TR"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an no registration in origin country exception
+    Then The total amount excluding VAT request throws an no registration in origin country exception
+    Then The total amount VAT request throws an no registration in origin country exception
 
   # A3.1
   Scenario Outline: A company with registration in it's main country delivers goods from another EU country to another EU country where it has a registration
@@ -169,9 +169,9 @@ Feature: As a salesman I want to send an invoice for goods or services delivered
     And Country of origin is "TR"
     And Country of destination is "DE"
     When A "consumer" invoice is created at "2016-01-01"
-    Then The total amount including VAT request throws an invoice calculation exception
-    Then The total amount excluding VAT request throws an invoice calculation exception
-    Then The total amount VAT request throws an invoice calculation exception
+    Then The total amount including VAT request throws an origin is not EU country exception
+    Then The total amount excluding VAT request throws an origin is not EU country exception
+    Then The total amount VAT request throws an origin is not EU country exception
 
     Examples:
       | totalAmountInclVat | totalAmountExVat | totalAmountVat | vatPercentage | amountVat |
