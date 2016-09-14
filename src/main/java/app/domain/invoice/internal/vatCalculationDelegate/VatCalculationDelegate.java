@@ -1,6 +1,7 @@
 package app.domain.invoice.internal.vatCalculationDelegate;
 
 import app.domain.invoice.InvoiceLine;
+import app.domain.invoice.internal.InvoiceImpl;
 import app.domain.invoice.internal.VatAmountSummary;
 import app.domain.invoice.internal.VatPercentage;
 
@@ -8,18 +9,25 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-public interface VatCalculationDelegate {
-    BigDecimal getInvoiceSubTotalInclVat();
+public abstract class VatCalculationDelegate {
 
-    BigDecimal getInvoiceSubTotalExclVat();
+    public final InvoiceImpl invoice;
 
-    BigDecimal getTotalInvoiceAmountInclVat();
+    protected VatCalculationDelegate(InvoiceImpl invoice) {
+        this.invoice = invoice;
+    }
 
-    BigDecimal getTotalInvoiceAmountExclVat();
+    public abstract BigDecimal getInvoiceSubTotalInclVat();
 
-    BigDecimal getInvoiceTotalVat();
+    public abstract BigDecimal getInvoiceSubTotalExclVat();
 
-    Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
+    public abstract BigDecimal getTotalInvoiceAmountInclVat();
 
-    VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff);
+    public abstract BigDecimal getTotalInvoiceAmountExclVat();
+
+    public abstract BigDecimal getInvoiceTotalVat();
+
+    public abstract Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
+
+    public abstract VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff);
 }

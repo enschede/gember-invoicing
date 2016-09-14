@@ -3,7 +3,6 @@ package app.domain.invoice.internal;
 import app.domain.invoice.*;
 import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegate;
 import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateFactory;
-import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateImpl;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -88,7 +87,9 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Boolean isShiftedVat() {
-        return invoiceVatRegimeDelegate.getCalculationMethod() == CalculationMethod.SHIFTED_VAT;
+        return invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT
+                || invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_EU_SERVICES
+                || invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_EU_E_SERVICES;
     }
 
     @Override

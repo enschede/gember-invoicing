@@ -22,7 +22,7 @@ public class InvoiceVatRegimeDelegate {
 
         if (isConsumerInvoice()) {
             if (invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault()))
-                return VatCalculationRegime.CONSUMER;
+                return VatCalculationRegime.B2C;
 
         }
 
@@ -59,35 +59,11 @@ public class InvoiceVatRegimeDelegate {
         VatCalculationRegime vatCalculationRegime =
                 getVatCalculationRegime();
 
-        if (vatCalculationRegime.equals(VatCalculationRegime.CONSUMER) && invoiceImpl.getCompany().getVatRegistrations().containsKey(destinationCountryIso)) {
+        if (vatCalculationRegime.equals(VatCalculationRegime.B2C) && invoiceImpl.getCompany().getVatRegistrations().containsKey(destinationCountryIso)) {
             return destinationCountryIso;
         }
 
         return originCountryIso;
-    }
-
-    public CalculationMethod getCalculationMethod() {
-
-        VatCalculationRegime vatCalculationRegime = getVatCalculationRegime();
-
-        switch (vatCalculationRegime) {
-            case CONSUMER:
-            case B2B_NATIONAL:
-            case EXPORT:
-                return invoiceImpl.invoiceType == InvoiceType.CONSUMER ?
-                        CalculationMethod.INCLUDING_VAT : CalculationMethod.EXCLUDING_VAT;
-
-            case B2B_NATIONAL_SHIFTED_VAT:
-            case B2B_EU_SERVICES:
-            case B2B_EU_E_SERVICES:
-                return CalculationMethod.SHIFTED_VAT;
-
-            case B2B_EU_GOODS:
-                return CalculationMethod.INTRA_CUMM_B2B;
-
-            default:
-                return CalculationMethod.INCLUDING_VAT;
-        }
     }
 
     public String getOriginCountryOfDefault() {
