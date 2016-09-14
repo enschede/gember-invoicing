@@ -31,8 +31,8 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
         final VatRepository vatRepository = new VatRepository();
         final String destinationCountry =
                 getVatDeclarationCountryIso(
-                        VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
-                        VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice));
+                        getOriginCountryOfDefault(invoice),
+                        getDestinationCountryOfDefault(invoice));
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
 
@@ -74,8 +74,8 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
 
                 VatPercentage vatPercentage = vatRepository.findByTariffAndDate(
                         getVatDeclarationCountryIso(
-                                VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
-                                VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice)),
+                                getOriginCountryOfDefault(invoice),
+                                getDestinationCountryOfDefault(invoice)),
                         VatTariff.ZERO, LocalDate.now());
 
                 VatAmountSummary vatAmount = new VatAmountSummary(vatPercentage, new BigDecimal("0.00"), getInvoiceSubTotalExclVat(), getTotalInvoiceAmountExclVat());
@@ -83,39 +83,6 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
                 vatPercentageVatAmountSummaryMap2.put(vatPercentage, vatAmount);
 
                 return vatPercentageVatAmountSummaryMap2;
-    }
-
-    @Override
-    public VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {
-
-        if (calculateVatOnSummaryBase()) {
-            // This value is not calculated for a including VAT invoiceImpl, as is never used then
-            BigDecimal totalSumExclVat = invoice.getInvoiceType() == InvoiceType.BUSINESS ?
-                    cachedInvoiceLinesForVatTariff.stream()
-                            .map(InvoiceLine::getLineAmountExclVat)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add) :
-                    BigDecimal.ZERO;
-
-            // This value is not calculated for a excluding VAT invoiceImpl, as is never used then
-            BigDecimal totalSumInclVat = invoice.getInvoiceType() == InvoiceType.CONSUMER ?
-                    cachedInvoiceLinesForVatTariff.stream()
-                            .map(InvoiceLine::getLineAmountInclVat)
-                            .reduce(BigDecimal.ZERO, BigDecimal::add) :
-                    BigDecimal.ZERO;
-
-            return vatPercentage.createVatAmountInfo(
-                    invoice.getInvoiceType() == InvoiceType.CONSUMER,
-                    totalSumExclVat,
-                    totalSumInclVat);
-        } else {
-            return cachedInvoiceLinesForVatTariff.stream()
-                    .map(invoiceLine -> invoiceLine.getVatAmount(
-                            VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
-                            VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice),
-                            invoice.getInvoiceType() == InvoiceType.CONSUMER))
-                    .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
-
-        }
     }
 
     private boolean calculateVatOnSummaryBase() {

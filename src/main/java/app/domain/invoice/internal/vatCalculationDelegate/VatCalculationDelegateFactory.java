@@ -49,17 +49,17 @@ public class VatCalculationDelegateFactory {
         validateIfCompanyHasRegistrationInOriginCountry(invoice);
 
         if (isConsumerInvoice(invoice)) {
-            if (invoice.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault(invoice)))
+            if (invoice.getCompany().getVatRegistrations().containsKey(VatCalculationDelegate.getOriginCountryOfDefault(invoice)))
                 return VatCalculationRegime.B2C;
 
         }
 
-        if (isNationalTransaction(getOriginCountryOfDefault(invoice), getDestinationCountryOfDefault(invoice))) {
+        if (isNationalTransaction(VatCalculationDelegate.getOriginCountryOfDefault(invoice), VatCalculationDelegate.getDestinationCountryOfDefault(invoice))) {
             return invoice.vatShifted ?
                     VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT : VatCalculationRegime.B2B_NATIONAL;
         }
 
-        if (isIntraEuTransaction(getOriginCountryOfDefault(invoice), getDestinationCountryOfDefault(invoice))) {
+        if (isIntraEuTransaction(VatCalculationDelegate.getOriginCountryOfDefault(invoice), VatCalculationDelegate.getDestinationCountryOfDefault(invoice))) {
             validateIfProductCategoryIsSet(invoice.productCategory);
 
             switch (invoice.productCategory.get()) {
@@ -77,8 +77,10 @@ public class VatCalculationDelegateFactory {
 
     private static void validateIfOriginCountryIsEuCountry(InvoiceImpl invoiceImpl) {
 
-        if (!isEuCountry(getOriginCountryOfDefault(invoiceImpl)))
-            throw new OriginIsNotEuCountryException(getOriginCountryOfDefault(invoiceImpl));
+        String originCountryOrDefault = VatCalculationDelegate.getOriginCountryOfDefault(invoiceImpl);
+
+        if (!isEuCountry(originCountryOrDefault))
+            throw new OriginIsNotEuCountryException(originCountryOrDefault);
     }
 
     private static boolean isEuCountry(String originCountryIso) {
@@ -88,22 +90,14 @@ public class VatCalculationDelegateFactory {
     }
 
     private static void validateIfCompanyHasRegistrationInOriginCountry(InvoiceImpl invoiceImpl) {
-        if(!invoiceImpl.getCompany().getVatRegistrations().containsKey(getOriginCountryOfDefault(invoiceImpl))) {
-            throw new NoRegistrationInOriginCountryException(getOriginCountryOfDefault(invoiceImpl));
+        if(!invoiceImpl.getCompany().getVatRegistrations().containsKey(VatCalculationDelegate.getOriginCountryOfDefault(invoiceImpl))) {
+            throw new NoRegistrationInOriginCountryException(VatCalculationDelegate.getOriginCountryOfDefault(invoiceImpl));
         }
     }
 
     private static void validateIfProductCategoryIsSet(Optional<ProductCategory> productCategory) {
         if (!productCategory.isPresent())
             throw new ProductCategoryNotSetException();
-    }
-
-    public static String getOriginCountryOfDefault(InvoiceImpl invoice) {
-        return invoice.countryOfOrigin.orElse(invoice.company.getPrimaryCountryIso());
-    }
-
-    public static String getDestinationCountryOfDefault(InvoiceImpl invoice) {
-        return invoice.countryOfDestination.orElse(invoice.company.getPrimaryCountryIso());
     }
 
     private static boolean isConsumerInvoice(InvoiceImpl invoice) {
