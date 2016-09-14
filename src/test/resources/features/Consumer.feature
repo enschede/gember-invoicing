@@ -7,7 +7,7 @@ Feature: As a salesman I want to send an invoice for goods or services delivered
     Given An invoiceline worth "121.00" euro "incl" VAT with "High" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "106.00" euro "incl" VAT with "Low1" vat level and referencedate is "2016-01-01"
     And An invoiceline worth "100.00" euro "incl" VAT with "Zero" vat level and referencedate is "2016-01-01"
-    Given A customer without a validated VAT id
+    Given A customer without a validated VAT id and default country is "NL"
 
   # A1.1.1
   Scenario Outline: A company with registration in the main country delivers goods/services within the same country

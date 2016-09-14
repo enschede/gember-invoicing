@@ -11,7 +11,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
   Scenario: totals are calculated on subtotal base
     Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_ON_TOTAL"
     And the company has VAT id "NL0123456789B01" in "NL"
-    And A customer without a validated VAT id
+    And A customer without a validated VAT id and default country is "NL"
     And Country of origin is "NL"
     And Country of destination is "NL"
     When A "consumer" invoice is created at "2016-01-01"
@@ -23,7 +23,7 @@ Feature: Calculation of VAT can be done using VAT_CALCULATION_ON_TOTAL or VAT_CA
   Scenario: totals are calculated on per line base
     Given A company in "NL" with vat calculation policy is "VAT_CALCULATION_PER_LINE"
     And the company has VAT id "NL0123456789B01" in "NL"
-    And A customer without a validated VAT id
+    And A customer without a validated VAT id and default country is "NL"
     And Country of origin is "NL"
     And Country of destination is "NL"
     When A "consumer" invoice is created at "2016-01-01"

@@ -5,12 +5,12 @@ import app.domain.invoice.internal.NoRegistrationInOriginCountryException;
 import app.domain.invoice.internal.ProductCategory;
 import app.domain.invoice.internal.VatTariff;
 import app.domain.invoice.internal.countries.CountryRepository;
-import cucumber.api.PendingException;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -68,13 +68,13 @@ public class Glue {
         company.getVatRegistrations().put(companyCountry, vatId);
     }
 
-    @Given("^A customer without a validated VAT id$")
-    public void a_customer_without_a_validated_VAT_id() throws Throwable {
+    @Given("^A customer without a validated VAT id and default country is \"([^\"]*)\"$")
+    public void a_customer_without_a_validated_VAT_id(String defaultCountry) throws Throwable {
 
         customer = new Customer() {
             @Override
             public Optional<String> getDefaultCountry() {
-                return Optional.empty();
+                return Optional.ofNullable(StringUtils.isEmpty(defaultCountry) ? null : defaultCountry);
             }
 
             @Override
