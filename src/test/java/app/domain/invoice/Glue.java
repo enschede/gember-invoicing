@@ -1,7 +1,6 @@
 package app.domain.invoice;
 
 import app.domain.invoice.internal.InvoiceImpl;
-import app.domain.invoice.internal.NoRegistrationInOriginCountryException;
 import app.domain.invoice.internal.ProductCategory;
 import app.domain.invoice.internal.VatTariff;
 import app.domain.invoice.internal.countries.CountryRepository;
@@ -16,7 +15,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.function.BooleanSupplier;
 
 public class Glue {
 

@@ -1,9 +1,9 @@
 package app.domain.invoice.internal.vatCalculationDelegate;
 
+import app.domain.invoice.NoRegistrationInOriginCountryException;
 import app.domain.invoice.OriginIsNotEuCountryException;
 import app.domain.invoice.ProductCategoryNotSetException;
 import app.domain.invoice.internal.InvoiceImpl;
-import app.domain.invoice.internal.NoRegistrationInOriginCountryException;
 import app.domain.invoice.internal.ProductCategory;
 import app.domain.invoice.internal.VatCalculationRegime;
 import app.domain.invoice.internal.countries.EuCountry;
