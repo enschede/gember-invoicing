@@ -40,11 +40,11 @@ public abstract class VatCalculationDelegate {
     }
 
     public static String getOriginCountryOfDefault(InvoiceImpl invoice) {
-        return invoice.countryOfOrigin.orElse(invoice.company.getPrimaryCountryIso());
+        return invoice.getCountryOfOrigin().orElse(invoice.getCompany().getPrimaryCountryIso());
     }
 
     public static String getDestinationCountryOfDefault(InvoiceImpl invoice) {
-        return invoice.countryOfDestination.orElse(invoice.company.getPrimaryCountryIso());
+        return invoice.getCountryOfDestination().orElse(invoice.getCompany().getPrimaryCountryIso());
     }
 
     public VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {

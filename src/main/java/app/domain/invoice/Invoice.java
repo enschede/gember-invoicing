@@ -28,11 +28,11 @@ public interface Invoice {
 
     void setInvoiceType(InvoiceType invoiceType);
 
-    Optional<String> getProductOriginCountry();
+    Optional<String> getCountryOfOrigin();
 
-    void setProductOriginCountry(Optional<String> productOrigin);
+    void setCountryOfOrigin(Optional<String> productOrigin);
 
-    Optional<String> getProductDestinationCountry();
+    Optional<String> getCountryOfDestination();
 
     void setProductDestinationCountry(Optional<String> productDestination);
 

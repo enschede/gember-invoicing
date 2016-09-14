@@ -178,7 +178,7 @@ public class Glue {
         invoice.setCompany(company);
         invoice.setCustomer(customer);
         invoice.setInvoiceType(invoiceType);
-        invoice.setProductOriginCountry(productOrigin);
+        invoice.setCountryOfOrigin(productOrigin);
         invoice.setProductDestinationCountry(productDestination);
         invoice.setProductCategory(productCategory);
         invoice.setVatShifted(vatShifted.orElse(false));

@@ -9,14 +9,14 @@ import java.util.*;
 
 public class InvoiceImpl implements Invoice {
 
-    public Company company;
-    protected Customer customer;
-    protected List<InvoiceLine> invoiceLines = new ArrayList<>();
-    public Optional<String> countryOfOrigin = Optional.empty();
-    public Optional<String> countryOfDestination = Optional.empty();
-    protected InvoiceType invoiceType;
-    public Boolean vatShifted;
-    public Optional<ProductCategory> productCategory = Optional.empty();
+    private Company company;
+    private Customer customer;
+    private List<InvoiceLine> invoiceLines = new ArrayList<>();
+    private Optional<String> countryOfOrigin = Optional.empty();
+    private Optional<String> countryOfDestination = Optional.empty();
+    private InvoiceType invoiceType;
+    private Boolean vatShifted;
+    private Optional<ProductCategory> productCategory = Optional.empty();
 
     @Override
     public InvoiceType getInvoiceType() {
@@ -30,17 +30,17 @@ public class InvoiceImpl implements Invoice {
     }
 
     @Override
-    public Optional<String> getProductOriginCountry() {
+    public Optional<String> getCountryOfOrigin() {
         return countryOfOrigin;
     }
 
     @Override
-    public void setProductOriginCountry(Optional<String> productOrigin) {
+    public void setCountryOfOrigin(Optional<String> productOrigin) {
         this.countryOfOrigin = productOrigin;
     }
 
     @Override
-    public Optional<String> getProductDestinationCountry() {
+    public Optional<String> getCountryOfDestination() {
         return countryOfDestination;
     }
 
@@ -74,9 +74,18 @@ public class InvoiceImpl implements Invoice {
         return null;
     }
 
+    public Boolean getVatShifted() {
+        return vatShifted;
+    }
+
     @Override
     public void setVatShifted(Boolean vatShifted) {
         this.vatShifted = vatShifted;
+    }
+
+
+    public Optional<ProductCategory> getProductCategory() {
+        return productCategory;
     }
 
     @Override

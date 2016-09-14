@@ -55,14 +55,14 @@ public class VatCalculationDelegateFactory {
         }
 
         if (isNationalTransaction(VatCalculationDelegate.getOriginCountryOfDefault(invoice), VatCalculationDelegate.getDestinationCountryOfDefault(invoice))) {
-            return invoice.vatShifted ?
+            return invoice.getVatShifted() ?
                     VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT : VatCalculationRegime.B2B_NATIONAL;
         }
 
         if (isIntraEuTransaction(VatCalculationDelegate.getOriginCountryOfDefault(invoice), VatCalculationDelegate.getDestinationCountryOfDefault(invoice))) {
-            validateIfProductCategoryIsSet(invoice.productCategory);
+            validateIfProductCategoryIsSet(invoice.getProductCategory());
 
-            switch (invoice.productCategory.get()) {
+            switch (invoice.getProductCategory().get()) {
                 case Goods:
                     return VatCalculationRegime.B2B_EU_GOODS;
                 case Services:
