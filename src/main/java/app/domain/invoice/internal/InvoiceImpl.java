@@ -1,6 +1,9 @@
 package app.domain.invoice.internal;
 
 import app.domain.invoice.*;
+import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegate;
+import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateFactory;
+import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateImpl;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -101,42 +104,48 @@ public class InvoiceImpl implements Invoice {
     @Override
     public BigDecimal getInvoiceSubTotalInclVat() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getInvoiceSubTotalInclVat();
     }
 
     @Override
     public BigDecimal getInvoiceSubTotalExclVat() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getInvoiceSubTotalExclVat();
     }
 
     @Override
     public BigDecimal getTotalInvoiceAmountInclVat() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getTotalInvoiceAmountInclVat();
     }
 
     @Override
     public BigDecimal getTotalInvoiceAmountExclVat() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getTotalInvoiceAmountExclVat();
     }
 
     @Override
     public BigDecimal getInvoiceTotalVat() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getInvoiceTotalVat();
     }
 
     @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
 
-        final VatCalculationDelegate vatCalculationDelegate = new VatCalculationDelegate(this);
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
         return vatCalculationDelegate.getVatPerVatTariff();
     }
 

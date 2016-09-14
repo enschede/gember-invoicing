@@ -1,4 +1,4 @@
-package app.domain.invoice.internal;
+package app.domain.invoice.internal.vatCalculationDelegate;
 
 import app.domain.invoice.InvoiceLine;
 import app.domain.invoice.InvoiceType;
@@ -12,14 +12,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VatCalculationDelegate {
+public class VatCalculationDelegateImpl implements VatCalculationDelegate {
 
     private final InvoiceImpl invoice;
 
-    public VatCalculationDelegate(InvoiceImpl invoice) {
+    protected VatCalculationDelegateImpl(InvoiceImpl invoice) {
         this.invoice = invoice;
     }
 
+    @Override
     public BigDecimal getInvoiceSubTotalInclVat() {
         final VatRepository vatRepository = new VatRepository();
         final String declarationCountryIso =
@@ -40,6 +41,7 @@ public class VatCalculationDelegate {
         }
     }
 
+    @Override
     public BigDecimal getInvoiceSubTotalExclVat() {
 
         final VatRepository vatRepository = new VatRepository();
@@ -66,6 +68,7 @@ public class VatCalculationDelegate {
         }
     }
 
+    @Override
     public BigDecimal getTotalInvoiceAmountInclVat() {
 
         switch (invoice.invoiceVatRegimeDelegate.getCalculationMethod()) {
@@ -85,6 +88,7 @@ public class VatCalculationDelegate {
         }
     }
 
+    @Override
     public BigDecimal getTotalInvoiceAmountExclVat() {
 
         switch (invoice.invoiceVatRegimeDelegate.getCalculationMethod()) {
@@ -103,6 +107,7 @@ public class VatCalculationDelegate {
 
     }
 
+    @Override
     public BigDecimal getInvoiceTotalVat() {
 
         Map<VatPercentage, VatAmountSummary> vatPerVatTariff = getVatPerVatTariff();
@@ -112,6 +117,7 @@ public class VatCalculationDelegate {
                 .reduce(new BigDecimal("0.00"), BigDecimal::add);
     }
 
+    @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
 
         final VatCalculationRegime vatCalculationRegime =
@@ -169,6 +175,7 @@ public class VatCalculationDelegate {
 
     }
 
+    @Override
     public VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff) {
 
         if (calculateVatOnSummaryBase()) {
