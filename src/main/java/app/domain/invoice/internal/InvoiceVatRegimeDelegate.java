@@ -15,7 +15,7 @@ public class InvoiceVatRegimeDelegate {
         this.invoiceImpl = invoiceImpl;
     }
 
-    VatCalculationRegime getVatCalculationRegime() {
+    public VatCalculationRegime getVatCalculationRegime() {
 
         validateIfOriginCountryIsEuCountry();
         validateIfCompanyHasRegistrationInOriginCountry();
@@ -66,7 +66,7 @@ public class InvoiceVatRegimeDelegate {
         return originCountryIso;
     }
 
-    CalculationMethod getCalculationMethod() {
+    public CalculationMethod getCalculationMethod() {
 
         VatCalculationRegime vatCalculationRegime = getVatCalculationRegime();
 
@@ -90,11 +90,11 @@ public class InvoiceVatRegimeDelegate {
         }
     }
 
-    String getOriginCountryOfDefault() {
+    public String getOriginCountryOfDefault() {
         return invoiceImpl.countryOfOrigin.orElse(invoiceImpl.company.getPrimaryCountryIso());
     }
 
-    String getDestinationCountryOfDefault() {
+    public String getDestinationCountryOfDefault() {
         return invoiceImpl.countryOfDestination.orElse(invoiceImpl.company.getPrimaryCountryIso());
     }
 
