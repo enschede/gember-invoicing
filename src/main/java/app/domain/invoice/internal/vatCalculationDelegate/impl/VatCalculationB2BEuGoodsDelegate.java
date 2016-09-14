@@ -121,4 +121,8 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
         return invoice.getCompany().getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
     }
 
+    @Override
+    public Boolean isVatShiftedInvoice() {
+        return false;
+    }
 }

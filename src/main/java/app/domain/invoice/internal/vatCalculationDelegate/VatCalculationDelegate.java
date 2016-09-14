@@ -30,4 +30,6 @@ public abstract class VatCalculationDelegate {
     public abstract Map<VatPercentage, VatAmountSummary> getVatPerVatTariff();
 
     public abstract VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff);
+
+    public abstract Boolean isVatShiftedInvoice();
 }

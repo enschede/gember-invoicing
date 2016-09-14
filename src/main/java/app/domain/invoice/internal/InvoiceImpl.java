@@ -87,9 +87,10 @@ public class InvoiceImpl implements Invoice {
 
     @Override
     public Boolean isShiftedVat() {
-        return invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_NATIONAL_SHIFTED_VAT
-                || invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_EU_SERVICES
-                || invoiceVatRegimeDelegate.getVatCalculationRegime() == VatCalculationRegime.B2B_EU_E_SERVICES;
+
+        final VatCalculationDelegate vatCalculationDelegate =
+                VatCalculationDelegateFactory.newVatCalculationDelegate(this);
+        return vatCalculationDelegate.isVatShiftedInvoice();
     }
 
     @Override

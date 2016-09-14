@@ -108,4 +108,8 @@ public abstract class VatCalculationVatShiftedDelegateImpl extends VatCalculatio
         return invoice.getCompany().getVatCalculationPolicy() == VatCalculationPolicy.VAT_CALCULATION_ON_TOTAL;
     }
 
+    @Override
+    public Boolean isVatShiftedInvoice() {
+        return true;
+    }
 }
