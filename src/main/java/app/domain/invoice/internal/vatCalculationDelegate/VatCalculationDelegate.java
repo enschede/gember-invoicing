@@ -32,4 +32,11 @@ public abstract class VatCalculationDelegate {
     public abstract VatAmountSummary calculateVatAmountForVatTariff(VatPercentage vatPercentage, List<InvoiceLine> cachedInvoiceLinesForVatTariff);
 
     public abstract Boolean isVatShiftedInvoice();
+
+    public String getVatDeclarationCountryIso(
+            final String originCountryIso, final String destinationCountryIso) {
+
+        return originCountryIso;
+    }
+
 }

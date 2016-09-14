@@ -6,6 +6,7 @@ import app.domain.invoice.InvoiceType;
 import app.domain.invoice.VatCalculationPolicy;
 import app.domain.invoice.internal.*;
 import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegate;
+import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateFactory;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,9 +23,9 @@ public abstract class VatCalculationIncludingVatDelegate extends VatCalculationD
     public BigDecimal getInvoiceSubTotalInclVat() {
         final VatRepository vatRepository = new VatRepository();
         final String declarationCountryIso =
-                invoice.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
-                        invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                        invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault());
+                getVatDeclarationCountryIso(
+                        VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                        VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice));
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, declarationCountryIso);
 
@@ -66,18 +67,15 @@ public abstract class VatCalculationIncludingVatDelegate extends VatCalculationD
     @Override
     public Map<VatPercentage, VatAmountSummary> getVatPerVatTariff() {
 
-        final VatCalculationRegime vatCalculationRegime =
-                invoice.invoiceVatRegimeDelegate.getVatCalculationRegime();
-
         final VatRepository vatRepository = new VatRepository();
 
         Map<VatPercentage, List<InvoiceLine>> mapOfInvoiceLinesPerVatPercentage =
                 invoice.getInvoiceLines().stream()
                         .collect(Collectors.groupingBy(
                                 invoiceLine -> vatRepository.findByTariffAndDate(
-                                        invoice.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
-                                                invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                                                invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault()),
+                                        getVatDeclarationCountryIso(
+                                                VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                                                VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice)),
                                         invoiceLine.getVatTariff(),
                                         invoiceLine.getVatReferenceDate())));
 
@@ -118,8 +116,8 @@ public abstract class VatCalculationIncludingVatDelegate extends VatCalculationD
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
                     .map(invoiceLine -> invoiceLine.getVatAmount(
-                            invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                            invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault(),
+                            VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                            VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice),
                             invoice.getInvoiceType() == InvoiceType.CONSUMER))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 

@@ -9,15 +9,14 @@ import java.util.*;
 
 public class InvoiceImpl implements Invoice {
 
-    public final InvoiceVatRegimeDelegate invoiceVatRegimeDelegate = new InvoiceVatRegimeDelegate(this);
-    protected Company company;
+    public Company company;
     protected Customer customer;
     protected List<InvoiceLine> invoiceLines = new ArrayList<>();
-    protected Optional<String> countryOfOrigin = Optional.empty();
-    protected Optional<String> countryOfDestination = Optional.empty();
+    public Optional<String> countryOfOrigin = Optional.empty();
+    public Optional<String> countryOfDestination = Optional.empty();
     protected InvoiceType invoiceType;
-    protected Boolean vatShifted;
-    protected Optional<ProductCategory> productCategory = Optional.empty();
+    public Boolean vatShifted;
+    public Optional<ProductCategory> productCategory = Optional.empty();
 
     @Override
     public InvoiceType getInvoiceType() {
@@ -151,4 +150,7 @@ public class InvoiceImpl implements Invoice {
         return vatCalculationDelegate.getVatPerVatTariff();
     }
 
+    public VatCalculationDelegate getCalculationDelegate() {
+        return VatCalculationDelegateFactory.newVatCalculationDelegate(this);
+    }
 }

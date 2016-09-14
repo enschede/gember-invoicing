@@ -5,6 +5,7 @@ import app.domain.invoice.InvoiceType;
 import app.domain.invoice.VatCalculationPolicy;
 import app.domain.invoice.internal.*;
 import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegate;
+import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateFactory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,9 +30,9 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
 
         final VatRepository vatRepository = new VatRepository();
         final String destinationCountry =
-                invoice.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
-                        invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                        invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault());
+                getVatDeclarationCountryIso(
+                        VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                        VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice));
 
         LineVatCalculator lineVatCalculator = new LineVatCalculatorImpl(vatRepository, destinationCountry);
 
@@ -72,9 +73,9 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
                 Map<VatPercentage, VatAmountSummary> vatPercentageVatAmountSummaryMap2 = new HashMap<>();
 
                 VatPercentage vatPercentage = vatRepository.findByTariffAndDate(
-                        invoice.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(
-                                invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                                invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault()),
+                        getVatDeclarationCountryIso(
+                                VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                                VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice)),
                         VatTariff.ZERO, LocalDate.now());
 
                 VatAmountSummary vatAmount = new VatAmountSummary(vatPercentage, new BigDecimal("0.00"), getInvoiceSubTotalExclVat(), getTotalInvoiceAmountExclVat());
@@ -109,8 +110,8 @@ public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {
         } else {
             return cachedInvoiceLinesForVatTariff.stream()
                     .map(invoiceLine -> invoiceLine.getVatAmount(
-                            invoice.invoiceVatRegimeDelegate.getOriginCountryOfDefault(),
-                            invoice.invoiceVatRegimeDelegate.getDestinationCountryOfDefault(),
+                            VatCalculationDelegateFactory.getOriginCountryOfDefault(invoice),
+                            VatCalculationDelegateFactory.getDestinationCountryOfDefault(invoice),
                             invoice.getInvoiceType() == InvoiceType.CONSUMER))
                     .reduce(VatAmountSummary.zero(vatPercentage), VatAmountSummary::add);
 

@@ -40,7 +40,7 @@ public abstract class InvoiceLine {
     public VatAmountSummary getVatAmount(String originCountry, String destinationCountry, Boolean consumerInvoice) {
         return vatRepository
                 .findByTariffAndDate(
-                        invoiceImpl.invoiceVatRegimeDelegate.getVatDeclarationCountryIso(originCountry, destinationCountry),
+                        invoiceImpl.getCalculationDelegate().getVatDeclarationCountryIso(originCountry, destinationCountry),
                         getVatTariff(),
                         getVatReferenceDate())
                 .createVatAmountInfo(
