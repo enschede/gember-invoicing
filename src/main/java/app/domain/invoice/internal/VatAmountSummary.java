@@ -15,20 +15,8 @@ public class VatAmountSummary {
         this.amountInclVat = amountInclVat;
     }
 
-    public VatPercentage getVatPercentage() {
-        return vatPercentage;
-    }
-
     public BigDecimal getAmountVat() {
         return amountVat;
-    }
-
-    public BigDecimal getAmountExclVat() {
-        return amountExclVat;
-    }
-
-    public BigDecimal getAmountInclVat() {
-        return amountInclVat;
     }
 
     public static VatAmountSummary zero(VatPercentage vatPercentage) {
