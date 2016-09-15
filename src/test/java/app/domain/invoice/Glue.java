@@ -2,7 +2,7 @@ package app.domain.invoice;
 
 import app.domain.invoice.internal.InvoiceImpl;
 import app.domain.invoice.internal.ProductCategory;
-import app.domain.invoice.internal.VatTariff;
+import app.domain.invoice.internal.vatTariffs.VatTariff;
 import app.domain.invoice.internal.countries.CountryRepository;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
@@ -55,6 +55,11 @@ public class Glue {
             @Override
             public boolean hasVatRegistrationFor(String isoOfcountryOfDestination) {
                 return vatRegistrations.containsKey(isoOfcountryOfDestination);
+            }
+
+            @Override
+            public Optional<String> getVatRegistrationInOrigin(String originCountryOfDefault) {
+                return Optional.ofNullable(vatRegistrations.get(originCountryOfDefault));
             }
         };
 

@@ -5,7 +5,7 @@ import app.domain.invoice.InvoiceType;
 import app.domain.invoice.VatCalculationPolicy;
 import app.domain.invoice.internal.InvoiceImpl;
 import app.domain.invoice.internal.VatAmountSummary;
-import app.domain.invoice.internal.VatPercentage;
+import app.domain.invoice.internal.vatTariffs.VatPercentage;
 
 import java.math.BigDecimal;
 import java.util.List;

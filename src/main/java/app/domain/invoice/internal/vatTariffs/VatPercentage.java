@@ -1,4 +1,6 @@
-package app.domain.invoice.internal;
+package app.domain.invoice.internal.vatTariffs;
+
+import app.domain.invoice.internal.VatAmountSummary;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

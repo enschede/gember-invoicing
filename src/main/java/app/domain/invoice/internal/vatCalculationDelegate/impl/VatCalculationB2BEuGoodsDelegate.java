@@ -1,16 +1,15 @@
 package app.domain.invoice.internal.vatCalculationDelegate.impl;
 
-import app.domain.invoice.InvoiceLine;
-import app.domain.invoice.InvoiceType;
 import app.domain.invoice.VatCalculationPolicy;
 import app.domain.invoice.internal.*;
 import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegate;
-import app.domain.invoice.internal.vatCalculationDelegate.VatCalculationDelegateFactory;
+import app.domain.invoice.internal.vatTariffs.VatPercentage;
+import app.domain.invoice.internal.vatTariffs.VatRepository;
+import app.domain.invoice.internal.vatTariffs.VatTariff;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class VatCalculationB2BEuGoodsDelegate extends VatCalculationDelegate {

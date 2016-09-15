@@ -1,4 +1,4 @@
-package app.domain.invoice.internal;
+package app.domain.invoice.internal.vatTariffs;
 
 import app.domain.invoice.VatPercentageNotFoundException;
 

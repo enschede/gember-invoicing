@@ -2,6 +2,8 @@ package app.domain.invoice.internal;
 
 import app.domain.invoice.InvoiceLine;
 import app.domain.invoice.InvoiceLineVatType;
+import app.domain.invoice.internal.vatTariffs.VatPercentage;
+import app.domain.invoice.internal.vatTariffs.VatRepository;
 
 import java.math.BigDecimal;
 

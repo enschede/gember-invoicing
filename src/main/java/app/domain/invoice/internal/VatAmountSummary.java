@@ -1,5 +1,7 @@
 package app.domain.invoice.internal;
 
+import app.domain.invoice.internal.vatTariffs.VatPercentage;
+
 import java.math.BigDecimal;
 
 public class VatAmountSummary {

@@ -10,6 +10,7 @@ import app.domain.invoice.internal.countries.EuCountry;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class VatRegimeDeterminator {
 
@@ -21,9 +22,37 @@ public class VatRegimeDeterminator {
 
     VatCalculationRegime getVatCalculationRegime() {
 
-        validateIfOriginCountryIsEuCountry();
-        validateIfCompanyHasRegistrationInOriginCountry();
+        new InvoiceValidator().validate();
 
+        return execute();
+    }
+
+    private class InvoiceValidator {
+        public void validate() {
+            validateIfOriginCountryIsEuCountry();
+            validateIfCompanyHasRegistrationInOriginCountry();
+        }
+
+        private void validateIfOriginCountryIsEuCountry() {
+
+            String actualOriginCountry = VatCalculationDelegate.getOriginCountryOfDefault(invoice);
+
+            if (!isEuCountry(actualOriginCountry))
+                throw new OriginIsNotEuCountryException(actualOriginCountry);
+        }
+
+        private void validateIfCompanyHasRegistrationInOriginCountry() {
+
+            Optional<String> hasCompanyRegistrationInOriginCountry =
+                    invoice.getCompany().getVatRegistrationInOrigin(VatCalculationDelegate.getOriginCountryOfDefault(invoice));
+
+            if (!hasCompanyRegistrationInOriginCountry.isPresent()) {
+                throw new NoRegistrationInOriginCountryException(VatCalculationDelegate.getOriginCountryOfDefault(invoice));
+            }
+        }
+    }
+
+    public VatCalculationRegime execute() {
         if (isConsumerInvoice()) {
             if (invoice.getCompany().getVatRegistrations().containsKey(VatCalculationDelegate.getOriginCountryOfDefault(invoice)))
                 return VatCalculationRegime.B2C;
@@ -51,31 +80,6 @@ public class VatRegimeDeterminator {
         return VatCalculationRegime.EXPORT;
     }
 
-    private void validateIfOriginCountryIsEuCountry() {
-
-        String originCountryOrDefault = VatCalculationDelegate.getOriginCountryOfDefault(invoice);
-
-        if (!isEuCountry(originCountryOrDefault))
-            throw new OriginIsNotEuCountryException(originCountryOrDefault);
-    }
-
-    private boolean isEuCountry(String originCountryIso) {
-        return Arrays
-                .stream(EuCountry.values())
-                .anyMatch(euCountry -> euCountry.name().equals(originCountryIso));
-    }
-
-    private void validateIfCompanyHasRegistrationInOriginCountry() {
-        if(!invoice.getCompany().getVatRegistrations().containsKey(VatCalculationDelegate.getOriginCountryOfDefault(invoice))) {
-            throw new NoRegistrationInOriginCountryException(VatCalculationDelegate.getOriginCountryOfDefault(invoice));
-        }
-    }
-
-    private void validateIfProductCategoryIsSet(Optional<ProductCategory> productCategory) {
-        if (!productCategory.isPresent())
-            throw new ProductCategoryNotSetException();
-    }
-
     private boolean isConsumerInvoice() {
         return !invoice.getCustomer().getEuTaxId().isPresent();
     }
@@ -87,5 +91,20 @@ public class VatRegimeDeterminator {
     private boolean isIntraEuTransaction(String originCountryIso, String destinationCountryIso) {
         return isEuCountry(destinationCountryIso) && !originCountryIso.equals(destinationCountryIso);
     }
+
+    private void validateIfProductCategoryIsSet(Optional<ProductCategory> productCategory) {
+        if (!productCategory.isPresent())
+            throw new ProductCategoryNotSetException();
+    }
+
+    private boolean isEuCountry(String originCountryIso) {
+        Predicate<EuCountry> filterToMatchOriginCountry =
+                euCountry -> euCountry.name().equals(originCountryIso);
+
+        return Arrays
+                .stream(EuCountry.values())
+                .anyMatch(filterToMatchOriginCountry);
+    }
+
 
 }

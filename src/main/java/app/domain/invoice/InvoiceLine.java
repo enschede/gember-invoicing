@@ -1,6 +1,8 @@
 package app.domain.invoice;
 
 import app.domain.invoice.internal.*;
+import app.domain.invoice.internal.vatTariffs.VatRepository;
+import app.domain.invoice.internal.vatTariffs.VatTariff;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
